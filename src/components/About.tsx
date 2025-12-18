@@ -104,10 +104,10 @@ const About = () => {
             </ScrollReveal>
             <ScrollReveal delay={200}>
               <p className="text-body text-lg leading-relaxed opacity-70 mb-8">
-                At Arch+Studio, we are an award-winning architectural and interior
+                At Studio Prangana, we are an emerging architectural and interior
                 design studio dedicated to creating spaces that inspire and
                 transform. Our approach combines innovative design thinking with
-                meticulous attention to detail.
+                meticulous attention to detail and sustainable practices.
               </p>
             </ScrollReveal>
             <ScrollReveal delay={300}>

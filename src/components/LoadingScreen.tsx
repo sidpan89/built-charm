@@ -26,7 +26,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
     return () => clearInterval(interval);
   }, [onComplete]);
 
-  const letters = "ARCH+STUDIO".split("");
+  const letters = "STUDIO PRANGANA".split("");
 
   return (
     <div
@@ -45,7 +45,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
                 opacity: progress > index * 8 ? 1 : 0,
                 transform: `translateY(${progress > index * 8 ? 0 : 40}px)`,
                 transition: `all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${index * 0.05}s`,
-                color: letter === "+" ? "hsl(var(--stone))" : "hsl(var(--foreground))",
+                color: letter === " " ? "transparent" : "hsl(var(--foreground))",
               }}
             >
               {letter}

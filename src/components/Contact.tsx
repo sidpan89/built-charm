@@ -73,10 +73,10 @@ const Contact = () => {
                     Email
                   </span>
                   <a
-                    href="mailto:hello@archstudio.com"
+                    href="mailto:hello@studioprangana.com"
                     className="text-body text-lg text-foreground inline-flex items-center gap-2 group-hover:gap-4 transition-all duration-300 reveal-line"
                   >
-                    hello@archstudio.com
+                    hello@studioprangana.com
                     <svg width="12" height="12" viewBox="0 0 12 12" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
                     </svg>
