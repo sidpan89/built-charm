@@ -17,21 +17,21 @@ const Footer = () => {
           <ScrollReveal className="lg:col-span-2">
             <MagneticButton strength={0.1}>
               <a href="/" className="font-serif text-2xl tracking-wider mb-4 inline-block group">
-                {"ARCH".split("").map((letter, i) => (
+                {"STUDIO".split("").map((letter, i) => (
                   <span
                     key={i}
-                    className="inline-block transition-transform duration-300 group-hover:-translate-y-1"
-                    style={{ transitionDelay: `${i * 30}ms` }}
+                    className="inline-block transition-all duration-500 group-hover:-translate-y-1 group-hover:text-stone"
+                    style={{ transitionDelay: `${i * 40}ms` }}
                   >
                     {letter}
                   </span>
                 ))}
-                <span className="text-stone mx-0.5 transition-all duration-300 group-hover:rotate-180 inline-block">+</span>
-                {"STUDIO".split("").map((letter, i) => (
+                <span className="mx-2" />
+                {"PRANGANA".split("").map((letter, i) => (
                   <span
                     key={i}
-                    className="inline-block transition-transform duration-300 group-hover:-translate-y-1"
-                    style={{ transitionDelay: `${(i + 5) * 30}ms` }}
+                    className="inline-block transition-all duration-500 group-hover:-translate-y-1"
+                    style={{ transitionDelay: `${(i + 7) * 40}ms` }}
                   >
                     {letter}
                   </span>
@@ -89,7 +89,7 @@ const Footer = () => {
         <ScrollReveal delay={300}>
           <div className="pt-8 border-t border-background/20 flex flex-col md:flex-row justify-between gap-4">
             <p className="text-body text-xs opacity-40">
-              © {currentYear} Arch+Studio. All rights reserved.
+              © {currentYear} Studio Prangana. All rights reserved.
             </p>
             <div className="flex gap-6">
               <a

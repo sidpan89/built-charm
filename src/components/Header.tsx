@@ -10,6 +10,7 @@ interface HeaderProps {
 const navItems = [
   { label: "Services", href: "#services" },
   { label: "Portfolio", href: "#portfolio" },
+  { label: "Team", href: "#team" },
   { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
 ];
@@ -56,21 +57,21 @@ const Header = ({ className }: HeaderProps) => {
         <MagneticButton strength={0.15}>
           <a href="/" className="relative z-10 group">
             <span className="font-serif text-2xl tracking-wider text-foreground inline-flex items-center">
-              {"ARCH".split("").map((letter, i) => (
+              {"STUDIO".split("").map((letter, i) => (
                 <span
                   key={i}
-                  className="inline-block transition-transform duration-300 group-hover:-translate-y-1"
-                  style={{ transitionDelay: `${i * 30}ms` }}
+                  className="inline-block transition-all duration-500 group-hover:-translate-y-1 group-hover:text-stone"
+                  style={{ transitionDelay: `${i * 40}ms` }}
                 >
                   {letter}
                 </span>
               ))}
-              <span className="text-stone mx-0.5 transition-all duration-300 group-hover:scale-125 group-hover:rotate-180">+</span>
-              {"STUDIO".split("").map((letter, i) => (
+              <span className="mx-2" />
+              {"PRANGANA".split("").map((letter, i) => (
                 <span
                   key={i}
-                  className="inline-block transition-transform duration-300 group-hover:-translate-y-1"
-                  style={{ transitionDelay: `${(i + 5) * 30}ms` }}
+                  className="inline-block transition-all duration-500 group-hover:-translate-y-1"
+                  style={{ transitionDelay: `${(i + 7) * 40}ms` }}
                 >
                   {letter}
                 </span>
