@@ -1,68 +1,119 @@
-import { useMemo, useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import ScrollReveal from "./ScrollReveal";
-import { useStudioPranganaZip } from "@/hooks/useStudioPranganaZip";
-
-import project1 from "@/assets/project-1.jpg";
-import project2 from "@/assets/project-2.jpg";
-import project3 from "@/assets/project-3.jpg";
-import project4 from "@/assets/project-4.jpg";
 
 type Project = {
   id: number;
   title: string;
+  description: string;
   category: string;
   location: string;
-  image: string;
+  instagramUrl: string;
+  instagramEmbedId: string;
 };
 
-const fallbackProjects: Project[] = [
+const projects: Project[] = [
   {
     id: 1,
-    title: "The Marble Kitchen",
+    title: "Chitradurga Louvered Fins",
+    description: "A climate-smart, operable fin mechanism designed for a private residence in Chitradurga, Karnataka — balancing privacy, shade and breeze with a sculptural facade.",
     category: "Residential",
-    location: "London",
-    image: project1,
+    location: "Chitradurga, Karnataka",
+    instagramUrl: "https://www.instagram.com/reel/CsqcXA7JAiz/",
+    instagramEmbedId: "CsqcXA7JAiz",
   },
   {
     id: 2,
-    title: "Glass House",
-    category: "Residential",
-    location: "Surrey",
-    image: project2,
+    title: "Curved Terrace Garden",
+    description: "Crafting stunning terrace spaces with flowing curves and dynamic shadows. Fabrication transforms rooftops into gardens and party decks — where art and function meet.",
+    category: "Landscape",
+    location: "Bangalore",
+    instagramUrl: "https://www.instagram.com/reel/DMe3JZVSQcu/",
+    instagramEmbedId: "DMe3JZVSQcu",
   },
   {
     id: 3,
-    title: "Minimal Retreat",
-    category: "Interior",
-    location: "Chelsea",
-    image: project3,
-  },
-  {
-    id: 4,
-    title: "The Modern Office",
-    category: "Commercial",
-    location: "City of London",
-    image: project4,
+    title: "Kala Residence",
+    description: "Raw textures. Honest materials. At Kala Residence, the play of brick and concrete finds quiet balance.",
+    category: "Residential",
+    location: "Bangalore",
+    instagramUrl: "https://www.instagram.com/studio_prangana/reel/DP6akrHgqUS/",
+    instagramEmbedId: "DP6akrHgqUS",
   },
 ];
 
+const InstagramEmbed = ({ embedId, title }: { embedId: string; title: string }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    // Load Instagram embed script
+    if (typeof window !== 'undefined' && !(window as any).instgrm) {
+      const script = document.createElement('script');
+      script.src = 'https://www.instagram.com/embed.js';
+      script.async = true;
+      script.onload = () => {
+        if ((window as any).instgrm) {
+          (window as any).instgrm.Embeds.process();
+        }
+        setLoaded(true);
+      };
+      document.body.appendChild(script);
+    } else if ((window as any).instgrm) {
+      (window as any).instgrm.Embeds.process();
+      setLoaded(true);
+    }
+  }, [embedId]);
+
+  return (
+    <div className="w-full flex justify-center">
+      <blockquote
+        className="instagram-media"
+        data-instgrm-captioned
+        data-instgrm-permalink={`https://www.instagram.com/reel/${embedId}/`}
+        data-instgrm-version="14"
+        style={{
+          background: '#FFF',
+          border: 0,
+          borderRadius: '3px',
+          boxShadow: '0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15)',
+          margin: '1px',
+          maxWidth: '540px',
+          minWidth: '326px',
+          padding: 0,
+          width: '99.375%',
+        }}
+      >
+        <div style={{ padding: '16px' }}>
+          <a
+            href={`https://www.instagram.com/reel/${embedId}/`}
+            style={{
+              background: '#FFFFFF',
+              lineHeight: 0,
+              padding: '0 0',
+              textAlign: 'center',
+              textDecoration: 'none',
+              width: '100%',
+            }}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                <svg className="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"/>
+                </svg>
+              </div>
+              <span className="text-sm text-foreground font-medium">View on Instagram</span>
+            </div>
+          </a>
+        </div>
+      </blockquote>
+    </div>
+  );
+};
+
 const Portfolio = () => {
-  const { status, projects: zipProjects, error } = useStudioPranganaZip();
-  const projects: Project[] = zipProjects.length > 0 ? zipProjects : fallbackProjects;
-
-  const filters = useMemo(() => {
-    const unique = Array.from(new Set(projects.map((p) => p.category).filter(Boolean)));
-    return ["All", ...unique];
-  }, [projects]);
-
-  const [activeFilter, setActiveFilter] = useState("All");
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
-
-  const filteredProjects =
-    activeFilter === "All"
-      ? projects
-      : projects.filter((p) => p.category === activeFilter);
 
   return (
     <section id="portfolio" className="py-24 lg:py-32 relative overflow-hidden">
@@ -79,56 +130,16 @@ const Portfolio = () => {
               Portfolio
             </span>
           </ScrollReveal>
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-            <ScrollReveal delay={100}>
-              <h2 className="text-display text-4xl md:text-5xl lg:text-6xl text-foreground">
-                Selected Works
-              </h2>
-            </ScrollReveal>
-            <ScrollReveal delay={200} direction="right">
-              <div className="flex flex-wrap gap-6">
-                {filters.map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setActiveFilter(filter)}
-                    className={cn(
-                      "text-label relative group py-2 transition-colors duration-300",
-                      activeFilter === filter
-                        ? "text-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <span className="relative z-10">{filter}</span>
-                    <span
-                      className={cn(
-                        "absolute bottom-0 left-0 h-px bg-foreground transition-all duration-500",
-                        activeFilter === filter ? "w-full" : "w-0 group-hover:w-full"
-                      )}
-                    />
-                  </button>
-                ))}
-              </div>
-            </ScrollReveal>
-          </div>
-
-          {status !== "ready" && (
-            <div className="mt-6">
-              <span className="text-body text-sm text-muted-foreground">
-                Loading projects from studio_pragana.zip…
-              </span>
-            </div>
-          )}
-
-          {error && (
-            <div className="mt-3">
-              <span className="text-body text-sm text-muted-foreground">{error}</span>
-            </div>
-          )}
+          <ScrollReveal delay={100}>
+            <h2 className="text-display text-4xl md:text-5xl lg:text-6xl text-foreground">
+              Selected Works
+            </h2>
+          </ScrollReveal>
         </div>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-          {filteredProjects.map((project, index) => (
+        {/* Projects List */}
+        <div className="space-y-24">
+          {projects.map((project, index) => (
             <ScrollReveal
               key={project.id}
               delay={index * 150}
@@ -139,161 +150,84 @@ const Portfolio = () => {
                 onMouseEnter={() => setHoveredProject(project.id)}
                 onMouseLeave={() => setHoveredProject(null)}
               >
-                <div className="relative overflow-hidden mb-6 aspect-square">
-                  {/* Image with parallax-like effect */}
-                  <img
-                    src={project.image}
-                    alt={`${project.title} - ${project.category} project`}
-                    loading="lazy"
-                    className={cn(
-                      "w-full h-full object-cover transition-all duration-700",
-                      hoveredProject === project.id ? "scale-110" : "scale-100"
-                    )}
-                  />
-
-                  {/* Overlay gradients */}
-                  <div
-                    className={cn(
-                      "absolute inset-0 bg-gradient-to-t from-foreground/60 via-foreground/20 to-transparent transition-opacity duration-500",
-                      hoveredProject === project.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-
-                  {/* Animated corner frames */}
-                  <div className="absolute inset-4 pointer-events-none">
-                    <div className={cn("absolute top-0 left-0 w-12 h-12 transition-all duration-500")}>
-                      <div
+                {/* Project Header */}
+                <div className="mb-8">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-4">
+                    <div>
+                      <span
                         className={cn(
-                          "absolute top-0 left-0 w-full h-px bg-background transition-all duration-500",
-                          hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
+                          "text-label text-stone mb-2 block text-xs transition-all duration-300",
+                          hoveredProject === project.id
+                            ? "tracking-[0.2em]"
+                            : "tracking-[0.15em]"
                         )}
-                        style={{ transformOrigin: "left" }}
-                      />
-                      <div
-                        className={cn(
-                          "absolute top-0 left-0 h-full w-px bg-background transition-all duration-500 delay-75",
-                          hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
-                        )}
-                        style={{ transformOrigin: "top" }}
-                      />
-                    </div>
-                    <div className="absolute top-0 right-0 w-12 h-12">
-                      <div
-                        className={cn(
-                          "absolute top-0 right-0 w-full h-px bg-background transition-all duration-500",
-                          hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
-                        )}
-                        style={{ transformOrigin: "right" }}
-                      />
-                      <div
-                        className={cn(
-                          "absolute top-0 right-0 h-full w-px bg-background transition-all duration-500 delay-75",
-                          hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
-                        )}
-                        style={{ transformOrigin: "top" }}
-                      />
-                    </div>
-                    <div className="absolute bottom-0 left-0 w-12 h-12">
-                      <div
-                        className={cn(
-                          "absolute bottom-0 left-0 w-full h-px bg-background transition-all duration-500",
-                          hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
-                        )}
-                        style={{ transformOrigin: "left" }}
-                      />
-                      <div
-                        className={cn(
-                          "absolute bottom-0 left-0 h-full w-px bg-background transition-all duration-500 delay-75",
-                          hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
-                        )}
-                        style={{ transformOrigin: "bottom" }}
-                      />
-                    </div>
-                    <div className="absolute bottom-0 right-0 w-12 h-12">
-                      <div
-                        className={cn(
-                          "absolute bottom-0 right-0 w-full h-px bg-background transition-all duration-500",
-                          hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
-                        )}
-                        style={{ transformOrigin: "right" }}
-                      />
-                      <div
-                        className={cn(
-                          "absolute bottom-0 right-0 h-full w-px bg-background transition-all duration-500 delay-75",
-                          hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
-                        )}
-                        style={{ transformOrigin: "bottom" }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Hover content */}
-                  <div
-                    className={cn(
-                      "absolute inset-0 flex items-center justify-center transition-all duration-500",
-                      hoveredProject === project.id ? "opacity-100" : "opacity-0"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "glass px-8 py-4 transition-all duration-500",
-                        hoveredProject === project.id ? "scale-100" : "scale-90"
-                      )}
-                    >
-                      <span className="text-label text-foreground flex items-center gap-2">
-                        View Project
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          className="transition-transform duration-300 group-hover:translate-x-1"
-                        >
-                          <path
-                            d="M1 8H15M15 8L8 1M15 8L8 15"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                      >
+                        {project.category}
                       </span>
+                      <h3
+                        className={cn(
+                          "font-serif text-2xl lg:text-3xl xl:text-4xl text-foreground transition-all duration-300",
+                          hoveredProject === project.id ? "translate-x-2" : "translate-x-0"
+                        )}
+                      >
+                        {project.title}
+                      </h3>
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start justify-between">
-                  <div>
                     <span
                       className={cn(
-                        "text-label text-stone mb-1 block text-xs transition-all duration-300",
+                        "text-body text-muted-foreground text-sm transition-all duration-300 lg:text-right",
                         hoveredProject === project.id
-                          ? "tracking-[0.2em]"
-                          : "tracking-[0.15em]"
+                          ? "opacity-100 translate-x-0"
+                          : "opacity-60"
                       )}
                     >
-                      {project.category}
+                      {project.location}
                     </span>
-                    <h3
-                      className={cn(
-                        "font-serif text-xl lg:text-2xl text-foreground transition-all duration-300",
-                        hoveredProject === project.id ? "translate-x-2" : "translate-x-0"
-                      )}
-                    >
-                      {project.title}
-                    </h3>
                   </div>
-                  <span
-                    className={cn(
-                      "text-body text-muted-foreground text-sm transition-all duration-300",
-                      hoveredProject === project.id
-                        ? "opacity-100 translate-x-0"
-                        : "opacity-60"
-                    )}
-                  >
-                    {project.location}
-                  </span>
+                  <p className="text-body text-muted-foreground max-w-3xl leading-relaxed">
+                    {project.description}
+                  </p>
                 </div>
+
+                {/* Instagram Embed */}
+                <div className="rounded-lg overflow-hidden">
+                  <InstagramEmbed embedId={project.instagramEmbedId} title={project.title} />
+                </div>
+
+                {/* View on Instagram Link */}
+                <div className="mt-6">
+                  <a
+                    href={project.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/link inline-flex items-center gap-2 text-label text-foreground hover:text-stone transition-colors duration-300"
+                  >
+                    <span className="relative">
+                      View on Instagram
+                      <span className="absolute bottom-0 left-0 w-full h-px bg-foreground scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left" />
+                    </span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="transition-transform duration-300 group-hover/link:translate-x-1"
+                    >
+                      <path
+                        d="M7 17L17 7M17 7H7M17 7V17"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </div>
+
+                {/* Divider */}
+                {index < projects.length - 1 && (
+                  <div className="mt-16 h-px bg-border/50" />
+                )}
               </div>
             </ScrollReveal>
           ))}
@@ -303,11 +237,13 @@ const Portfolio = () => {
         <ScrollReveal delay={400}>
           <div className="mt-16 text-center">
             <a
-              href="#"
+              href="https://www.instagram.com/studio_prangana/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="group inline-flex items-center gap-3 text-label text-foreground relative overflow-hidden"
             >
               <span className="relative">
-                View All Projects
+                View All Projects on Instagram
                 <span className="absolute bottom-0 left-0 w-full h-px bg-foreground scale-x-100 group-hover:scale-x-0 transition-transform duration-500 origin-right" />
                 <span className="absolute bottom-0 left-0 w-full h-px bg-stone scale-x-0 group-hover:scale-x-100 transition-transform duration-500 delay-200 origin-left" />
               </span>
