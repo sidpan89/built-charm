@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import ScrollReveal from "./ScrollReveal";
 import { cn } from "@/lib/utils";
+import { useStudioPranganaZip } from "@/hooks/useStudioPranganaZip";
 
 interface TeamMember {
   name: string;
@@ -9,7 +10,8 @@ interface TeamMember {
   image: string;
 }
 
-const teamMembers: TeamMember[] = [
+// Fallback (kept) — will be replaced automatically when ZIP data is detected.
+const fallbackTeamMembers: TeamMember[] = [
   {
     name: "Prangana Das",
     role: "Founder & Principal Architect",
@@ -85,7 +87,8 @@ const TeamCard = ({ member, index }: { member: TeamMember; index: number }) => {
           <div className="relative aspect-[4/5] overflow-hidden">
             <img
               src={member.image}
-              alt={member.name}
+              alt={`${member.name} - ${member.role}`}
+              loading="lazy"
               className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
               style={{
                 transform: isHovered
@@ -93,15 +96,15 @@ const TeamCard = ({ member, index }: { member: TeamMember; index: number }) => {
                   : "scale(1)",
               }}
             />
-            
-            {/* Glass overlay on hover */}
+
+            {/* Overlay gradients */}
             <div
               className={cn(
                 "absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent transition-all duration-500",
                 isHovered ? "opacity-100" : "opacity-60"
               )}
             />
-            
+
             {/* Liquid glass effect */}
             <div
               className={cn(
@@ -112,7 +115,8 @@ const TeamCard = ({ member, index }: { member: TeamMember; index: number }) => {
                 clipPath: isHovered
                   ? "circle(150% at 50% 100%)"
                   : "circle(0% at 50% 100%)",
-                transition: "clip-path 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease",
+                transition:
+                  "clip-path 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease",
               }}
             />
 
@@ -135,7 +139,7 @@ const TeamCard = ({ member, index }: { member: TeamMember; index: number }) => {
               >
                 {member.role}
               </p>
-              
+
               {/* Bio - appears on hover */}
               <p
                 className={cn(
@@ -186,23 +190,14 @@ const TeamCard = ({ member, index }: { member: TeamMember; index: number }) => {
 };
 
 const Team = () => {
-  const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { status, team, error } = useStudioPranganaZip();
+
+  const members: TeamMember[] = team.length > 0 ? team : fallbackTeamMembers;
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    const observer = new IntersectionObserver(() => undefined, { threshold: 0.1 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
@@ -222,7 +217,7 @@ const Team = () => {
           className="absolute w-[400px] h-[400px] rounded-full bg-gradient-to-br from-muted/20 to-transparent blur-3xl animate-float"
           style={{ bottom: "10%", right: "5%", animationDelay: "3s" }}
         />
-        
+
         {/* Grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.02]"
@@ -255,12 +250,28 @@ const Team = () => {
               to crafting exceptional spaces that inspire and endure.
             </p>
           </ScrollReveal>
+
+          {status !== "ready" && (
+            <div className="mt-6">
+              <span className="text-body text-sm text-muted-foreground">
+                Loading team from studio_pragana.zip…
+              </span>
+            </div>
+          )}
+
+          {error && (
+            <div className="mt-4">
+              <span className="text-body text-sm text-muted-foreground">
+                {error}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Team Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
-          {teamMembers.map((member, index) => (
-            <TeamCard key={member.name} member={member} index={index} />
+          {members.map((member, index) => (
+            <TeamCard key={`${member.name}-${index}`} member={member} index={index} />
           ))}
         </div>
 

@@ -203,10 +203,10 @@ const Hero = () => {
                 href="#portfolio"
                 className="group relative inline-flex items-center justify-center px-8 py-4 text-label bg-foreground text-background overflow-hidden shadow-3d"
               >
-                <span className="relative z-10 transition-transform duration-300 group-hover:-translate-y-full">
+                <span className="relative z-10 block transition-transform duration-300 group-hover:-translate-y-full">
                   View Portfolio
                 </span>
-                <span className="absolute z-10 transition-transform duration-300 translate-y-full group-hover:translate-y-0">
+                <span className="absolute inset-0 z-10 flex items-center justify-center transition-transform duration-300 translate-y-full group-hover:translate-y-0">
                   View Portfolio
                 </span>
                 <span className="absolute inset-0 bg-stone scale-x-0 origin-left transition-transform duration-500 group-hover:scale-x-100" />
