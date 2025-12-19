@@ -1,7 +1,11 @@
 import { useRef, useEffect, useState } from "react";
 import ScrollReveal from "./ScrollReveal";
 import { cn } from "@/lib/utils";
-import { useStudioPranganaZip } from "@/hooks/useStudioPranganaZip";
+
+import teamMithileshwar from "@/assets/team-mithileshwar.png";
+import teamManaswini from "@/assets/team-manaswini.png";
+import teamKrishna from "@/assets/team-krishna.png";
+import teamAnusha from "@/assets/team-anusha.png";
 
 interface TeamMember {
   name: string;
@@ -10,31 +14,30 @@ interface TeamMember {
   image: string;
 }
 
-// Fallback (kept) — will be replaced automatically when ZIP data is detected.
-const fallbackTeamMembers: TeamMember[] = [
+const teamMembers: TeamMember[] = [
   {
-    name: "Prangana Das",
-    role: "Founder & Principal Architect",
-    bio: "With over 15 years of experience in architectural design, Prangana brings a unique vision that blends modern aesthetics with traditional craftsmanship. Her approach emphasizes sustainable design and human-centered spaces.",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&h=600&fit=crop&crop=face",
+    name: "Mithileshwar Ram Krishna",
+    role: "Co‑Founder · Partner · Principal Architect",
+    bio: "Leading visionary architect with expertise in contemporary design and sustainable building practices.",
+    image: teamMithileshwar,
   },
   {
-    name: "Arjun Mehta",
-    role: "Design Director",
-    bio: "Arjun's passion for innovative design has led numerous award-winning projects. He specializes in commercial architecture and urban planning, creating spaces that inspire productivity and creativity.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&h=600&fit=crop&crop=face",
+    name: "Manaswini N A",
+    role: "Co‑Founder · Principal Architect",
+    bio: "Creative force behind innovative architectural solutions that blend tradition with modernity.",
+    image: teamManaswini,
   },
   {
-    name: "Priya Sharma",
-    role: "Interior Design Lead",
-    bio: "Priya transforms spaces with her keen eye for detail and deep understanding of materials. Her interiors seamlessly blend functionality with artistic expression, creating environments that tell stories.",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=500&h=600&fit=crop&crop=face",
+    name: "Krishna Telkar",
+    role: "Co‑Founder · Principal Architect",
+    bio: "Expert in structural design and project management, ensuring excellence in every build.",
+    image: teamKrishna,
   },
   {
-    name: "Vikram Singh",
-    role: "Project Architect",
-    bio: "Vikram brings technical excellence to every project. His expertise in sustainable building practices and innovative construction methods ensures our designs are both beautiful and environmentally responsible.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=600&fit=crop&crop=face",
+    name: "Anusha K L",
+    role: "Junior Architect",
+    bio: "Passionate emerging architect contributing fresh perspectives and innovative design ideas.",
+    image: teamAnusha,
   },
 ];
 
@@ -191,9 +194,8 @@ const TeamCard = ({ member, index }: { member: TeamMember; index: number }) => {
 
 const Team = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { status, team, error } = useStudioPranganaZip();
 
-  const members: TeamMember[] = team.length > 0 ? team : fallbackTeamMembers;
+  const members: TeamMember[] = teamMembers;
 
   useEffect(() => {
     const observer = new IntersectionObserver(() => undefined, { threshold: 0.1 });
@@ -250,22 +252,6 @@ const Team = () => {
               to crafting exceptional spaces that inspire and endure.
             </p>
           </ScrollReveal>
-
-          {status !== "ready" && (
-            <div className="mt-6">
-              <span className="text-body text-sm text-muted-foreground">
-                Loading team from studio_pragana.zip…
-              </span>
-            </div>
-          )}
-
-          {error && (
-            <div className="mt-4">
-              <span className="text-body text-sm text-muted-foreground">
-                {error}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Team Grid */}
