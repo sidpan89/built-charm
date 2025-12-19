@@ -2,10 +2,10 @@ import { useRef, useEffect, useState } from "react";
 import ScrollReveal from "./ScrollReveal";
 import { cn } from "@/lib/utils";
 
-import teamMithileshwar from "@/assets/team-mithileshwar.png";
-import teamManaswini from "@/assets/team-manaswini.png";
-import teamKrishna from "@/assets/team-krishna.png";
-import teamAnusha from "@/assets/team-anusha.png";
+import teamMithileshwar from "@/assets/team-mithileshwar-ram-krishna.png";
+import teamManaswini from "@/assets/team-manaswini-na.png";
+import teamKrishna from "@/assets/team-krishna-telkar.png";
+import teamAnusha from "@/assets/team-anusha-kl.png";
 
 interface TeamMember {
   name: string;
