@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import ScrollReveal from "./ScrollReveal";
+import { useStudioPranganaZip } from "@/hooks/useStudioPranganaZip";
 
 import project1 from "@/assets/project-1.jpg";
 import project2 from "@/assets/project-2.jpg";
 import project3 from "@/assets/project-3.jpg";
 import project4 from "@/assets/project-4.jpg";
 
-const projects = [
+type Project = {
+  id: number;
+  title: string;
+  category: string;
+  location: string;
+  image: string;
+};
+
+const fallbackProjects: Project[] = [
   {
     id: 1,
     title: "The Marble Kitchen",
@@ -38,9 +47,15 @@ const projects = [
   },
 ];
 
-const filters = ["All", "Residential", "Commercial", "Interior"];
-
 const Portfolio = () => {
+  const { status, projects: zipProjects, error } = useStudioPranganaZip();
+  const projects: Project[] = zipProjects.length > 0 ? zipProjects : fallbackProjects;
+
+  const filters = useMemo(() => {
+    const unique = Array.from(new Set(projects.map((p) => p.category).filter(Boolean)));
+    return ["All", ...unique];
+  }, [projects]);
+
   const [activeFilter, setActiveFilter] = useState("All");
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
 
@@ -60,7 +75,9 @@ const Portfolio = () => {
         {/* Section Header */}
         <div className="mb-16">
           <ScrollReveal>
-            <span className="text-label text-stone mb-4 block tracking-[0.2em]">Portfolio</span>
+            <span className="text-label text-stone mb-4 block tracking-[0.2em]">
+              Portfolio
+            </span>
           </ScrollReveal>
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
             <ScrollReveal delay={100}>
@@ -69,8 +86,8 @@ const Portfolio = () => {
               </h2>
             </ScrollReveal>
             <ScrollReveal delay={200} direction="right">
-              <div className="flex gap-6">
-                {filters.map((filter, index) => (
+              <div className="flex flex-wrap gap-6">
+                {filters.map((filter) => (
                   <button
                     key={filter}
                     onClick={() => setActiveFilter(filter)}
@@ -85,9 +102,7 @@ const Portfolio = () => {
                     <span
                       className={cn(
                         "absolute bottom-0 left-0 h-px bg-foreground transition-all duration-500",
-                        activeFilter === filter
-                          ? "w-full"
-                          : "w-0 group-hover:w-full"
+                        activeFilter === filter ? "w-full" : "w-0 group-hover:w-full"
                       )}
                     />
                   </button>
@@ -95,6 +110,20 @@ const Portfolio = () => {
               </div>
             </ScrollReveal>
           </div>
+
+          {status !== "ready" && (
+            <div className="mt-6">
+              <span className="text-body text-sm text-muted-foreground">
+                Loading projects from studio_pragana.zip…
+              </span>
+            </div>
+          )}
+
+          {error && (
+            <div className="mt-3">
+              <span className="text-body text-sm text-muted-foreground">{error}</span>
+            </div>
+          )}
         </div>
 
         {/* Projects Grid */}
@@ -114,74 +143,103 @@ const Portfolio = () => {
                   {/* Image with parallax-like effect */}
                   <img
                     src={project.image}
-                    alt={project.title}
+                    alt={`${project.title} - ${project.category} project`}
+                    loading="lazy"
                     className={cn(
                       "w-full h-full object-cover transition-all duration-700",
                       hoveredProject === project.id ? "scale-110" : "scale-100"
                     )}
                   />
-                  
+
                   {/* Overlay gradients */}
-                  <div className={cn(
-                    "absolute inset-0 bg-gradient-to-t from-foreground/60 via-foreground/20 to-transparent transition-opacity duration-500",
-                    hoveredProject === project.id ? "opacity-100" : "opacity-0"
-                  )} />
-                  
+                  <div
+                    className={cn(
+                      "absolute inset-0 bg-gradient-to-t from-foreground/60 via-foreground/20 to-transparent transition-opacity duration-500",
+                      hoveredProject === project.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+
                   {/* Animated corner frames */}
                   <div className="absolute inset-4 pointer-events-none">
-                    <div className={cn(
-                      "absolute top-0 left-0 w-12 h-12 transition-all duration-500",
-                    )}>
-                      <div className={cn(
-                        "absolute top-0 left-0 w-full h-px bg-background transition-all duration-500",
-                        hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
-                      )} style={{ transformOrigin: "left" }} />
-                      <div className={cn(
-                        "absolute top-0 left-0 h-full w-px bg-background transition-all duration-500 delay-75",
-                        hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
-                      )} style={{ transformOrigin: "top" }} />
+                    <div className={cn("absolute top-0 left-0 w-12 h-12 transition-all duration-500")}>
+                      <div
+                        className={cn(
+                          "absolute top-0 left-0 w-full h-px bg-background transition-all duration-500",
+                          hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
+                        )}
+                        style={{ transformOrigin: "left" }}
+                      />
+                      <div
+                        className={cn(
+                          "absolute top-0 left-0 h-full w-px bg-background transition-all duration-500 delay-75",
+                          hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
+                        )}
+                        style={{ transformOrigin: "top" }}
+                      />
                     </div>
                     <div className="absolute top-0 right-0 w-12 h-12">
-                      <div className={cn(
-                        "absolute top-0 right-0 w-full h-px bg-background transition-all duration-500",
-                        hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
-                      )} style={{ transformOrigin: "right" }} />
-                      <div className={cn(
-                        "absolute top-0 right-0 h-full w-px bg-background transition-all duration-500 delay-75",
-                        hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
-                      )} style={{ transformOrigin: "top" }} />
+                      <div
+                        className={cn(
+                          "absolute top-0 right-0 w-full h-px bg-background transition-all duration-500",
+                          hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
+                        )}
+                        style={{ transformOrigin: "right" }}
+                      />
+                      <div
+                        className={cn(
+                          "absolute top-0 right-0 h-full w-px bg-background transition-all duration-500 delay-75",
+                          hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
+                        )}
+                        style={{ transformOrigin: "top" }}
+                      />
                     </div>
                     <div className="absolute bottom-0 left-0 w-12 h-12">
-                      <div className={cn(
-                        "absolute bottom-0 left-0 w-full h-px bg-background transition-all duration-500",
-                        hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
-                      )} style={{ transformOrigin: "left" }} />
-                      <div className={cn(
-                        "absolute bottom-0 left-0 h-full w-px bg-background transition-all duration-500 delay-75",
-                        hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
-                      )} style={{ transformOrigin: "bottom" }} />
+                      <div
+                        className={cn(
+                          "absolute bottom-0 left-0 w-full h-px bg-background transition-all duration-500",
+                          hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
+                        )}
+                        style={{ transformOrigin: "left" }}
+                      />
+                      <div
+                        className={cn(
+                          "absolute bottom-0 left-0 h-full w-px bg-background transition-all duration-500 delay-75",
+                          hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
+                        )}
+                        style={{ transformOrigin: "bottom" }}
+                      />
                     </div>
                     <div className="absolute bottom-0 right-0 w-12 h-12">
-                      <div className={cn(
-                        "absolute bottom-0 right-0 w-full h-px bg-background transition-all duration-500",
-                        hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
-                      )} style={{ transformOrigin: "right" }} />
-                      <div className={cn(
-                        "absolute bottom-0 right-0 h-full w-px bg-background transition-all duration-500 delay-75",
-                        hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
-                      )} style={{ transformOrigin: "bottom" }} />
+                      <div
+                        className={cn(
+                          "absolute bottom-0 right-0 w-full h-px bg-background transition-all duration-500",
+                          hoveredProject === project.id ? "scale-x-100" : "scale-x-0"
+                        )}
+                        style={{ transformOrigin: "right" }}
+                      />
+                      <div
+                        className={cn(
+                          "absolute bottom-0 right-0 h-full w-px bg-background transition-all duration-500 delay-75",
+                          hoveredProject === project.id ? "scale-y-100" : "scale-y-0"
+                        )}
+                        style={{ transformOrigin: "bottom" }}
+                      />
                     </div>
                   </div>
-                  
+
                   {/* Hover content */}
-                  <div className={cn(
-                    "absolute inset-0 flex items-center justify-center transition-all duration-500",
-                    hoveredProject === project.id ? "opacity-100" : "opacity-0"
-                  )}>
-                    <div className={cn(
-                      "glass px-8 py-4 transition-all duration-500",
-                      hoveredProject === project.id ? "scale-100" : "scale-90"
-                    )}>
+                  <div
+                    className={cn(
+                      "absolute inset-0 flex items-center justify-center transition-all duration-500",
+                      hoveredProject === project.id ? "opacity-100" : "opacity-0"
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "glass px-8 py-4 transition-all duration-500",
+                        hoveredProject === project.id ? "scale-100" : "scale-90"
+                      )}
+                    >
                       <span className="text-label text-foreground flex items-center gap-2">
                         View Project
                         <svg
@@ -203,26 +261,36 @@ const Portfolio = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className={cn(
-                      "text-label text-stone mb-1 block text-xs transition-all duration-300",
-                      hoveredProject === project.id ? "tracking-[0.2em]" : "tracking-[0.15em]"
-                    )}>
+                    <span
+                      className={cn(
+                        "text-label text-stone mb-1 block text-xs transition-all duration-300",
+                        hoveredProject === project.id
+                          ? "tracking-[0.2em]"
+                          : "tracking-[0.15em]"
+                      )}
+                    >
                       {project.category}
                     </span>
-                    <h3 className={cn(
-                      "font-serif text-xl lg:text-2xl text-foreground transition-all duration-300",
-                      hoveredProject === project.id ? "translate-x-2" : "translate-x-0"
-                    )}>
+                    <h3
+                      className={cn(
+                        "font-serif text-xl lg:text-2xl text-foreground transition-all duration-300",
+                        hoveredProject === project.id ? "translate-x-2" : "translate-x-0"
+                      )}
+                    >
                       {project.title}
                     </h3>
                   </div>
-                  <span className={cn(
-                    "text-body text-muted-foreground text-sm transition-all duration-300",
-                    hoveredProject === project.id ? "opacity-100 translate-x-0" : "opacity-60"
-                  )}>
+                  <span
+                    className={cn(
+                      "text-body text-muted-foreground text-sm transition-all duration-300",
+                      hoveredProject === project.id
+                        ? "opacity-100 translate-x-0"
+                        : "opacity-60"
+                    )}
+                  >
                     {project.location}
                   </span>
                 </div>
