@@ -64,7 +64,7 @@ export default {
   		},
   		fontFamily: {
   			serif: [
-  				'Cormorant Garamond',
+  				'Lora',
   				'ui-serif',
   				'Georgia',
   				'Cambria',
@@ -73,7 +73,7 @@ export default {
   				'serif'
   			],
   			sans: [
-  				'Instrument Sans',
+  				'Space Grotesk',
   				'ui-sans-serif',
   				'system-ui',
   				'-apple-system',
@@ -84,6 +84,17 @@ export default {
   				'Arial',
   				'Noto Sans',
   				'sans-serif'
+  			],
+  			mono: [
+  				'Space Mono',
+  				'ui-monospace',
+  				'SFMono-Regular',
+  				'Menlo',
+  				'Monaco',
+  				'Consolas',
+  				'Liberation Mono',
+  				'Courier New',
+  				'monospace'
   			]
   		},
   		borderRadius: {
