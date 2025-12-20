@@ -11,6 +11,8 @@ const Hero = ({ onExplore }: HeroProps) => {
   const [lettersVisible, setLettersVisible] = useState<number[]>([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [time, setTime] = useState(0);
+  const [breezeIntensity, setBreezeIntensity] = useState(1);
+  const [isGust, setIsGust] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
   const studioName = "Studio Prangana";
@@ -55,20 +57,55 @@ const Hero = ({ onExplore }: HeroProps) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Generate leaf shadow positions
+  // Gentle breeze effect with occasional gusts
+  useEffect(() => {
+    const triggerGust = () => {
+      setIsGust(true);
+      setBreezeIntensity(2.5 + Math.random() * 1.5); // Random intensity between 2.5-4
+      
+      // Gust duration
+      setTimeout(() => {
+        setIsGust(false);
+        // Gradual wind-down
+        const windDown = setInterval(() => {
+          setBreezeIntensity((prev) => {
+            if (prev <= 1.1) {
+              clearInterval(windDown);
+              return 1;
+            }
+            return prev * 0.92;
+          });
+        }, 100);
+      }, 800 + Math.random() * 600);
+    };
+
+    // Random gusts every 4-8 seconds
+    const scheduleGust = () => {
+      const nextGust = 4000 + Math.random() * 4000;
+      return setTimeout(() => {
+        triggerGust();
+        gustTimeout = scheduleGust();
+      }, nextGust);
+    };
+
+    let gustTimeout = scheduleGust();
+    return () => clearTimeout(gustTimeout);
+  }, []);
+
+  // Generate leaf shadow positions with breeze effect
   const leafShadows = Array.from({ length: 15 }, (_, i) => {
     const baseX = -10 + (i % 5) * 22;
     const baseY = -15 + Math.floor(i / 5) * 35;
-    const swayX = Math.sin(time * 0.7 + i * 0.8) * 18;
-    const swayY = Math.cos(time * 0.5 + i * 0.5) * 10;
-    const rotation = 15 + Math.sin(time * 0.4 + i * 1.1) * 20;
+    const swayX = Math.sin(time * 0.7 * breezeIntensity + i * 0.8) * 18 * breezeIntensity;
+    const swayY = Math.cos(time * 0.5 * breezeIntensity + i * 0.5) * 10 * breezeIntensity;
+    const rotation = 15 + Math.sin(time * 0.4 * breezeIntensity + i * 1.1) * 20 * breezeIntensity;
     
     return {
       x: baseX + swayX + mousePosition.x * 20,
       y: baseY + swayY + mousePosition.y * 15,
       rotation,
-      scale: 0.7 + Math.sin(time * 0.3 + i * 0.8) * 0.25,
-      opacity: 0.06 + Math.sin(time * 0.4 + i * 0.5) * 0.025,
+      scale: 0.7 + Math.sin(time * 0.3 * breezeIntensity + i * 0.8) * 0.25 * breezeIntensity,
+      opacity: 0.06 + Math.sin(time * 0.4 + i * 0.5) * 0.025 + (isGust ? 0.02 : 0),
     };
   });
 
@@ -126,9 +163,9 @@ const Hero = ({ onExplore }: HeroProps) => {
         
         {/* Individual leaf shapes for more realism */}
         {[...Array(25)].map((_, i) => {
-          const leafX = (i % 5) * 22 + Math.sin(time * 0.55 + i * 0.75) * 12;
-          const leafY = -8 + Math.floor(i / 5) * 22 + Math.cos(time * 0.4 + i * 0.55) * 8;
-          const leafRotation = 20 + i * 15 + Math.sin(time * 0.45 + i * 0.65) * 18;
+          const leafX = (i % 5) * 22 + Math.sin(time * 0.55 * breezeIntensity + i * 0.75) * 12 * breezeIntensity;
+          const leafY = -8 + Math.floor(i / 5) * 22 + Math.cos(time * 0.4 * breezeIntensity + i * 0.55) * 8 * breezeIntensity;
+          const leafRotation = 20 + i * 15 + Math.sin(time * 0.45 * breezeIntensity + i * 0.65) * 18 * breezeIntensity;
           
           return (
             <svg
@@ -139,8 +176,9 @@ const Hero = ({ onExplore }: HeroProps) => {
                 top: `${leafY}%`,
                 width: "45px",
                 height: "60px",
-                opacity: 0.055 + Math.sin(time * 0.5 + i * 0.8) * 0.025,
-                transform: `rotate(${leafRotation}deg) scale(${0.75 + Math.sin(time * 0.35 + i * 0.7) * 0.25})`,
+                opacity: 0.055 + Math.sin(time * 0.5 + i * 0.8) * 0.025 + (isGust ? 0.015 : 0),
+                transform: `rotate(${leafRotation}deg) scale(${0.75 + Math.sin(time * 0.35 * breezeIntensity + i * 0.7) * 0.25 * breezeIntensity})`,
+                transition: isGust ? 'none' : 'opacity 0.5s ease-out',
               }}
               viewBox="0 0 30 40"
               fill="hsl(var(--charcoal))"
@@ -152,8 +190,8 @@ const Hero = ({ onExplore }: HeroProps) => {
         
         {/* Branch shadows */}
         {[...Array(5)].map((_, i) => {
-          const branchX = 5 + i * 20 + Math.sin(time * 0.4 + i * 0.9) * 10;
-          const branchY = -12 + (i % 2) * 25 + Math.cos(time * 0.35 + i * 0.6) * 6;
+          const branchX = 5 + i * 20 + Math.sin(time * 0.4 * breezeIntensity + i * 0.9) * 10 * breezeIntensity;
+          const branchY = -12 + (i % 2) * 25 + Math.cos(time * 0.35 * breezeIntensity + i * 0.6) * 6 * breezeIntensity;
           
           return (
             <div
@@ -164,9 +202,10 @@ const Hero = ({ onExplore }: HeroProps) => {
                 top: `${branchY}%`,
                 width: "180px",
                 height: "280px",
-                background: `linear-gradient(${45 + i * 30}deg, hsl(var(--charcoal) / 0.06) 0%, transparent 55%)`,
-                transform: `rotate(${35 + i * 28 + Math.sin(time * 0.35 + i * 0.7) * 8}deg)`,
+                background: `linear-gradient(${45 + i * 30}deg, hsl(var(--charcoal) / ${0.06 + (isGust ? 0.02 : 0)}) 0%, transparent 55%)`,
+                transform: `rotate(${35 + i * 28 + Math.sin(time * 0.35 * breezeIntensity + i * 0.7) * 8 * breezeIntensity}deg)`,
                 borderRadius: "45% 55% 50% 50%",
+                transition: isGust ? 'none' : 'background 0.5s ease-out',
               }}
             />
           );
