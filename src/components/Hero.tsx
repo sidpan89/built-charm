@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
-import heroImage from "@/assets/hero-architecture.jpg";
 
 interface HeroProps {
   onExplore?: () => void;
@@ -10,6 +9,7 @@ const Hero = ({ onExplore }: HeroProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [lettersVisible, setLettersVisible] = useState<number[]>([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [time, setTime] = useState(0);
   const heroRef = useRef<HTMLDivElement>(null);
 
   const studioName = "Studio Prangana";
@@ -46,29 +46,77 @@ const Hero = ({ onExplore }: HeroProps) => {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+  // Animation loop for leaf shadows
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime((prev) => prev + 0.02);
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Generate leaf shadow positions
+  const leafShadows = Array.from({ length: 12 }, (_, i) => {
+    const baseX = 5 + (i % 4) * 25;
+    const baseY = -10 + Math.floor(i / 4) * 35;
+    const swayX = Math.sin(time + i * 0.5) * 15;
+    const swayY = Math.cos(time * 0.7 + i * 0.3) * 8;
+    const rotation = 30 + Math.sin(time * 0.5 + i) * 10;
+    
+    return {
+      x: baseX + swayX + mousePosition.x * 20,
+      y: baseY + swayY + mousePosition.y * 15,
+      rotation,
+      scale: 0.8 + Math.sin(time * 0.3 + i * 0.7) * 0.2,
+      opacity: 0.04 + Math.sin(time * 0.4 + i) * 0.02,
+    };
+  });
+
   return (
     <section
       id="home"
       ref={heroRef}
       className="h-screen flex items-center justify-center relative bg-cream overflow-hidden"
     >
-      {/* Background image with stronger overlay */}
-      <div
-        className={cn(
-          "absolute inset-0 transition-all duration-1000",
-          isVisible ? "opacity-30 scale-100" : "opacity-0 scale-110"
-        )}
-        style={{
-          transform: `translate(${mousePosition.x * -20}px, ${mousePosition.y * -20}px) scale(1.1)`,
-          transition: "opacity 1s, transform 0.5s ease-out",
-        }}
-      >
-        <img
-          src={heroImage}
-          alt="Architecture"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-cream/40" />
+      {/* Animated leaf shadows overlay */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {leafShadows.map((leaf, i) => (
+          <div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${leaf.x}%`,
+              top: `${leaf.y}%`,
+              width: "300px",
+              height: "400px",
+              background: `radial-gradient(ellipse 40% 60% at 50% 50%, hsl(var(--charcoal)) 0%, transparent 70%)`,
+              opacity: leaf.opacity,
+              transform: `rotate(${leaf.rotation}deg) scale(${leaf.scale})`,
+              transition: "opacity 0.5s ease-out",
+            }}
+          />
+        ))}
+        
+        {/* Additional branch-like shadows */}
+        {[...Array(6)].map((_, i) => {
+          const branchX = 15 + i * 15 + Math.sin(time * 0.6 + i) * 8;
+          const branchY = -5 + (i % 2) * 20 + Math.cos(time * 0.4 + i * 0.5) * 5;
+          
+          return (
+            <div
+              key={`branch-${i}`}
+              className="absolute"
+              style={{
+                left: `${branchX}%`,
+                top: `${branchY}%`,
+                width: "150px",
+                height: "250px",
+                background: `linear-gradient(${135 + i * 20}deg, hsl(var(--charcoal) / 0.06) 0%, transparent 60%)`,
+                transform: `rotate(${60 + i * 25 + Math.sin(time + i) * 5}deg)`,
+                borderRadius: "50% 50% 50% 50%",
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Subtle texture overlay */}
@@ -79,7 +127,7 @@ const Hero = ({ onExplore }: HeroProps) => {
         }}
       />
 
-      {/* Animated grid pattern */}
+      {/* Animated grid pattern - very subtle */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className={cn(
@@ -88,58 +136,40 @@ const Hero = ({ onExplore }: HeroProps) => {
           )}
           style={{
             backgroundImage: `
-              linear-gradient(to right, hsl(var(--charcoal) / 0.06) 1px, transparent 1px),
-              linear-gradient(to bottom, hsl(var(--charcoal) / 0.06) 1px, transparent 1px)
+              linear-gradient(to right, hsl(var(--charcoal) / 0.03) 1px, transparent 1px),
+              linear-gradient(to bottom, hsl(var(--charcoal) / 0.03) 1px, transparent 1px)
             `,
-            backgroundSize: "80px 80px",
+            backgroundSize: "100px 100px",
           }}
         />
       </div>
 
-      {/* Floating orbs with mouse parallax */}
+      {/* Floating light spots with mouse parallax */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className={cn(
-            "absolute w-96 h-96 rounded-full bg-gradient-to-br from-stone/20 to-transparent blur-3xl transition-all duration-1000",
+            "absolute w-[600px] h-[600px] rounded-full bg-gradient-to-br from-stone/10 to-transparent blur-3xl transition-all duration-1000",
             isVisible ? "opacity-100" : "opacity-0"
           )}
           style={{
-            top: "10%",
-            left: "10%",
-            transform: `translate(${mousePosition.x * 40}px, ${mousePosition.y * 40}px)`,
-            transition: "opacity 1s, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            top: "5%",
+            left: "5%",
+            transform: `translate(${mousePosition.x * 30}px, ${mousePosition.y * 30}px)`,
+            transition: "opacity 1s, transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
           }}
         />
         <div
           className={cn(
-            "absolute w-64 h-64 rounded-full bg-gradient-to-br from-charcoal/10 to-transparent blur-3xl transition-all duration-1000",
+            "absolute w-[400px] h-[400px] rounded-full bg-gradient-to-br from-charcoal/5 to-transparent blur-3xl transition-all duration-1000",
             isVisible ? "opacity-100" : "opacity-0"
           )}
           style={{
-            bottom: "20%",
-            right: "15%",
-            transform: `translate(${mousePosition.x * -60}px, ${mousePosition.y * -60}px)`,
-            transition: "opacity 1s, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            bottom: "10%",
+            right: "10%",
+            transform: `translate(${mousePosition.x * -40}px, ${mousePosition.y * -40}px)`,
+            transition: "opacity 1s, transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
             transitionDelay: "200ms",
           }}
-        />
-      </div>
-
-      {/* Animated lines */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className={cn(
-            "absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-charcoal/20 to-transparent transition-all duration-1500",
-            isVisible ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
-          )}
-          style={{ transitionDelay: "1s" }}
-        />
-        <div
-          className={cn(
-            "absolute top-3/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-charcoal/20 to-transparent transition-all duration-1500",
-            isVisible ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
-          )}
-          style={{ transitionDelay: "1.2s" }}
         />
       </div>
 
@@ -240,7 +270,6 @@ const Hero = ({ onExplore }: HeroProps) => {
         <div className="w-16 h-px bg-charcoal/30 ml-auto" />
         <div className="w-px h-16 bg-charcoal/30 ml-auto" />
       </div>
-
     </section>
   );
 };
