@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import serviceResidential from "@/assets/service-residential.jpg";
@@ -7,13 +7,16 @@ import serviceCommercial from "@/assets/service-commercial.jpg";
 import serviceInterior from "@/assets/service-interior.jpg";
 import serviceHeritage from "@/assets/service-heritage.jpg";
 
+interface HorizontalSliderProps {
+  onBack?: () => void;
+}
+
 interface Slide {
   id: string;
   category: string;
   title: string;
   description: string;
   image: string;
-  link: string;
 }
 
 const slides: Slide[] = [
@@ -23,7 +26,6 @@ const slides: Slide[] = [
     title: "Architectural Design",
     description: "The most important material with which we design, is light.",
     image: serviceResidential,
-    link: "#portfolio",
   },
   {
     id: "commercial",
@@ -31,7 +33,6 @@ const slides: Slide[] = [
     title: "Commercial Architecture",
     description: "Design is about a way of living, be it at home, in the workplace, relaxing, or entertaining.",
     image: serviceCommercial,
-    link: "#portfolio",
   },
   {
     id: "interior",
@@ -39,7 +40,6 @@ const slides: Slide[] = [
     title: "Interior Design",
     description: "We aspire to create an interior experience that is both memorable, and timeless.",
     image: serviceInterior,
-    link: "#portfolio",
   },
   {
     id: "heritage",
@@ -47,11 +47,10 @@ const slides: Slide[] = [
     title: "Conservation & Heritage",
     description: "Conservation Architects to transform your heritage property.",
     image: serviceHeritage,
-    link: "#portfolio",
   },
 ];
 
-const HorizontalSlider = () => {
+const HorizontalSlider = ({ onBack }: HorizontalSliderProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -59,20 +58,8 @@ const HorizontalSlider = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -108,8 +95,22 @@ const HorizontalSlider = () => {
     <section
       id="services"
       ref={containerRef}
-      className="relative bg-background overflow-hidden"
+      className="relative bg-cream overflow-hidden"
     >
+      {/* Back button */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className={cn(
+            "absolute top-24 left-6 lg:left-12 z-20 flex items-center gap-2 text-label text-background/80 text-xs tracking-[0.15em] hover:text-background transition-all duration-500",
+            isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+          )}
+        >
+          <ArrowLeft size={16} />
+          <span>Back</span>
+        </button>
+      )}
+
       {/* Main Slider */}
       <div className="relative h-screen">
         {/* Slides */}
@@ -140,7 +141,7 @@ const HorizontalSlider = () => {
                     transition: "transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/30 to-foreground/10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/40 to-charcoal/20" />
               </div>
 
               {/* Animated lines */}
@@ -208,38 +209,6 @@ const HorizontalSlider = () => {
                     >
                       {slide.description}
                     </p>
-                    <a
-                      href={slide.link}
-                      className={cn(
-                        "group inline-flex items-center gap-2 text-label text-background text-sm tracking-[0.15em] transition-all duration-700",
-                        isVisible && currentIndex === index ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-                      )}
-                      style={{ transitionDelay: "700ms" }}
-                    >
-                      <span className="relative overflow-hidden">
-                        <span className="inline-block transition-transform duration-300 group-hover:-translate-y-full">
-                          Read More
-                        </span>
-                        <span className="absolute top-0 left-0 inline-block translate-y-full transition-transform duration-300 group-hover:translate-y-0">
-                          Read More
-                        </span>
-                      </span>
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        className="transition-transform duration-300 group-hover:translate-x-2"
-                      >
-                        <path
-                          d="M1 8H15M15 8L8 1M15 8L8 15"
-                          stroke="currentColor"
-                          strokeWidth="1"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </a>
                   </div>
                 </div>
               </div>

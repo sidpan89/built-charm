@@ -1,27 +1,29 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
 
 interface FullscreenMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  onNavigate: (section: string) => void;
 }
 
 const menuItems = [
-  { label: "Home", href: "#home", description: "Back to start" },
-  { label: "Services", href: "#services", description: "What we do" },
-  { label: "Portfolio", href: "#portfolio", description: "Our work" },
-  { label: "Team", href: "#team", description: "Meet us" },
-  { label: "About", href: "#about", description: "Our story" },
-  { label: "Contact", href: "#contact", description: "Get in touch" },
+  { label: "Home", section: "home", description: "Back to start" },
+  { label: "Services", section: "services", description: "What we do" },
+  { label: "Portfolio", section: "portfolio", description: "Our work" },
+  { label: "Team", section: "team", description: "Meet us" },
+  { label: "About", section: "about", description: "Our story" },
+  { label: "Contact", section: "contact", description: "Get in touch" },
 ];
 
-const FullscreenMenu = ({ isOpen, onClose }: FullscreenMenuProps) => {
+const FullscreenMenu = ({ isOpen, onClose, onNavigate }: FullscreenMenuProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
 
   useEffect(() => {
     if (isOpen) {
-      // Stagger item visibility
+      setVisibleItems([]);
       menuItems.forEach((_, index) => {
         setTimeout(() => {
           setVisibleItems((prev) => [...prev, index]);
@@ -32,14 +34,9 @@ const FullscreenMenu = ({ isOpen, onClose }: FullscreenMenuProps) => {
     }
   }, [isOpen]);
 
-  const handleClick = (href: string) => {
+  const handleClick = (section: string) => {
+    onNavigate(section);
     onClose();
-    setTimeout(() => {
-      const element = document.getElementById(href.replace("#", ""));
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }, 500);
   };
 
   return (
@@ -94,7 +91,7 @@ const FullscreenMenu = ({ isOpen, onClose }: FullscreenMenuProps) => {
               {menuItems.map((item, index) => (
                 <button
                   key={item.label}
-                  onClick={() => handleClick(item.href)}
+                  onClick={() => handleClick(item.section)}
                   onMouseEnter={() => setHoveredIndex(index)}
                   onMouseLeave={() => setHoveredIndex(null)}
                   className={cn(

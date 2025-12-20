@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
+
+interface PortfolioProps {
+  onBack?: () => void;
+}
 
 type Project = {
   id: number;
@@ -106,40 +111,42 @@ const InstagramEmbed = ({ embedId }: { embedId: string }) => {
   );
 };
 
-const Portfolio = () => {
+const Portfolio = ({ onBack }: PortfolioProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <section
       id="portfolio"
       ref={sectionRef}
-      className="py-24 lg:py-32 bg-background"
+      className="min-h-screen py-24 lg:py-32 bg-cream"
     >
       <div className="container mx-auto px-6 lg:px-12">
+        {/* Back button */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className={cn(
+              "flex items-center gap-2 text-label text-charcoal/60 text-xs tracking-[0.15em] hover:text-charcoal transition-all duration-500 mb-12",
+              isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+            )}
+          >
+            <ArrowLeft size={16} />
+            <span>Back to Home</span>
+          </button>
+        )}
+
         {/* Section Header */}
         <div className="mb-16 lg:mb-24">
           <span
             className={cn(
-              "text-label text-stone text-xs tracking-[0.3em] mb-4 block transition-all duration-700",
+              "text-label text-charcoal/50 text-xs tracking-[0.3em] mb-4 block transition-all duration-700",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}
           >
@@ -147,7 +154,7 @@ const Portfolio = () => {
           </span>
           <h2
             className={cn(
-              "font-serif text-4xl md:text-5xl lg:text-6xl text-foreground transition-all duration-700 delay-100",
+              "font-serif text-4xl md:text-5xl lg:text-6xl text-charcoal transition-all duration-700 delay-100",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}
           >
@@ -173,7 +180,7 @@ const Portfolio = () => {
                 <div>
                   <span
                     className={cn(
-                      "text-label text-stone text-xs tracking-[0.2em] mb-2 block transition-all duration-300",
+                      "text-label text-charcoal/50 text-xs tracking-[0.2em] mb-2 block transition-all duration-300",
                       hoveredProject === project.id ? "tracking-[0.25em]" : ""
                     )}
                   >
@@ -181,7 +188,7 @@ const Portfolio = () => {
                   </span>
                   <h3
                     className={cn(
-                      "font-serif text-2xl lg:text-3xl xl:text-4xl text-foreground transition-all duration-300",
+                      "font-serif text-2xl lg:text-3xl xl:text-4xl text-charcoal transition-all duration-300",
                       hoveredProject === project.id ? "translate-x-2" : ""
                     )}
                   >
@@ -189,10 +196,10 @@ const Portfolio = () => {
                   </h3>
                 </div>
                 <div className="flex flex-col justify-end">
-                  <p className="text-body text-muted-foreground leading-relaxed">
+                  <p className="text-body text-charcoal/60 leading-relaxed">
                     {project.description}
                   </p>
-                  <span className="text-label text-stone/60 text-xs tracking-[0.15em] mt-4">
+                  <span className="text-label text-charcoal/40 text-xs tracking-[0.15em] mt-4">
                     {project.location}
                   </span>
                 </div>
@@ -209,11 +216,11 @@ const Portfolio = () => {
                   href={project.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group/link inline-flex items-center gap-2 text-label text-foreground text-xs tracking-[0.15em]"
+                  className="group/link inline-flex items-center gap-2 text-label text-charcoal text-xs tracking-[0.15em]"
                 >
                   <span className="relative">
                     View on Instagram
-                    <span className="absolute bottom-0 left-0 w-full h-px bg-foreground scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left" />
+                    <span className="absolute bottom-0 left-0 w-full h-px bg-charcoal scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left" />
                   </span>
                   <svg
                     width="12"
@@ -231,14 +238,14 @@ const Portfolio = () => {
                     />
                   </svg>
                 </a>
-                <span className="text-label text-muted-foreground/40 text-xs">
+                <span className="text-label text-charcoal/30 text-xs">
                   0{index + 1}
                 </span>
               </div>
 
               {/* Divider */}
               {index < projects.length - 1 && (
-                <div className="mt-16 lg:mt-24 h-px bg-border" />
+                <div className="mt-16 lg:mt-24 h-px bg-charcoal/10" />
               )}
             </article>
           ))}
@@ -256,11 +263,11 @@ const Portfolio = () => {
             href="https://www.instagram.com/studio_prangana/"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-3 text-label text-foreground text-sm tracking-[0.15em]"
+            className="group inline-flex items-center gap-3 text-label text-charcoal text-sm tracking-[0.15em]"
           >
             <span className="relative">
               View All Projects
-              <span className="absolute bottom-0 left-0 w-full h-px bg-foreground" />
+              <span className="absolute bottom-0 left-0 w-full h-px bg-charcoal" />
               <span className="absolute bottom-0 left-0 w-full h-px bg-stone scale-x-0 origin-right transition-transform duration-500 group-hover:scale-x-100 group-hover:origin-left" />
             </span>
             <svg

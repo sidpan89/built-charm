@@ -2,7 +2,11 @@ import { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import heroImage from "@/assets/hero-architecture.jpg";
 
-const Hero = () => {
+interface HeroProps {
+  onExplore?: () => void;
+}
+
+const Hero = ({ onExplore }: HeroProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [lettersVisible, setLettersVisible] = useState<number[]>([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -42,24 +46,17 @@ const Hero = () => {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
     <section
       id="home"
       ref={heroRef}
-      className="min-h-screen flex items-center justify-center relative bg-background overflow-hidden"
+      className="h-screen flex items-center justify-center relative bg-cream overflow-hidden"
     >
-      {/* Animated background image with parallax */}
+      {/* Background image with stronger overlay */}
       <div
         className={cn(
           "absolute inset-0 transition-all duration-1000",
-          isVisible ? "opacity-20 scale-100" : "opacity-0 scale-110"
+          isVisible ? "opacity-30 scale-100" : "opacity-0 scale-110"
         )}
         style={{
           transform: `translate(${mousePosition.x * -20}px, ${mousePosition.y * -20}px) scale(1.1)`,
@@ -71,7 +68,16 @@ const Hero = () => {
           alt="Architecture"
           className="w-full h-full object-cover"
         />
+        <div className="absolute inset-0 bg-cream/40" />
       </div>
+
+      {/* Subtle texture overlay */}
+      <div 
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      />
 
       {/* Animated grid pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -82,8 +88,8 @@ const Hero = () => {
           )}
           style={{
             backgroundImage: `
-              linear-gradient(to right, hsl(var(--foreground) / 0.03) 1px, transparent 1px),
-              linear-gradient(to bottom, hsl(var(--foreground) / 0.03) 1px, transparent 1px)
+              linear-gradient(to right, hsl(var(--charcoal) / 0.06) 1px, transparent 1px),
+              linear-gradient(to bottom, hsl(var(--charcoal) / 0.06) 1px, transparent 1px)
             `,
             backgroundSize: "80px 80px",
           }}
@@ -94,7 +100,7 @@ const Hero = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className={cn(
-            "absolute w-96 h-96 rounded-full bg-gradient-to-br from-stone/10 to-transparent blur-3xl transition-all duration-1000",
+            "absolute w-96 h-96 rounded-full bg-gradient-to-br from-stone/20 to-transparent blur-3xl transition-all duration-1000",
             isVisible ? "opacity-100" : "opacity-0"
           )}
           style={{
@@ -106,7 +112,7 @@ const Hero = () => {
         />
         <div
           className={cn(
-            "absolute w-64 h-64 rounded-full bg-gradient-to-br from-muted/20 to-transparent blur-3xl transition-all duration-1000",
+            "absolute w-64 h-64 rounded-full bg-gradient-to-br from-charcoal/10 to-transparent blur-3xl transition-all duration-1000",
             isVisible ? "opacity-100" : "opacity-0"
           )}
           style={{
@@ -123,14 +129,14 @@ const Hero = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className={cn(
-            "absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent transition-all duration-1500",
+            "absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-charcoal/20 to-transparent transition-all duration-1500",
             isVisible ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
           )}
           style={{ transitionDelay: "1s" }}
         />
         <div
           className={cn(
-            "absolute top-3/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent transition-all duration-1500",
+            "absolute top-3/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-charcoal/20 to-transparent transition-all duration-1500",
             isVisible ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
           )}
           style={{ transitionDelay: "1.2s" }}
@@ -149,7 +155,7 @@ const Hero = () => {
           >
             <span
               className={cn(
-                "text-label text-stone tracking-[0.3em] text-xs inline-block transition-all duration-700",
+                "text-label text-charcoal/60 tracking-[0.3em] text-xs inline-block transition-all duration-700",
                 isVisible ? "translate-y-0" : "translate-y-full"
               )}
               style={{ transitionDelay: "300ms" }}
@@ -159,7 +165,7 @@ const Hero = () => {
           </div>
 
           {/* Main Heading with Letter Animation */}
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-[5.5rem] xl:text-[7rem] text-foreground leading-[0.95] tracking-tight mb-12">
+          <h1 className="font-serif text-5xl md:text-7xl lg:text-[5.5rem] xl:text-[7rem] text-charcoal leading-[0.95] tracking-tight mb-12">
             <span className="inline">
               {studioName.split("").map((letter, index) => (
                 <span
@@ -180,7 +186,7 @@ const Hero = () => {
             </span>
             <span
               className={cn(
-                "block mt-4 text-2xl md:text-3xl lg:text-4xl font-sans font-light text-muted-foreground leading-relaxed transition-all duration-1000",
+                "block mt-4 text-2xl md:text-3xl lg:text-4xl font-sans font-light text-charcoal/60 leading-relaxed transition-all duration-1000",
                 isVisible ? "opacity-100 translate-y-0 blur-0" : "opacity-0 translate-y-8 blur-sm"
               )}
               style={{ transitionDelay: "1500ms" }}
@@ -198,45 +204,19 @@ const Hero = () => {
             style={{ transitionDelay: "2000ms" }}
           >
             <button
-              onClick={() => scrollToSection("portfolio")}
-              className="group relative text-label text-foreground text-sm tracking-[0.15em] overflow-hidden"
+              onClick={onExplore}
+              className="group relative text-label text-charcoal text-sm tracking-[0.15em] overflow-hidden"
             >
               <span className="relative z-10 inline-block transition-transform duration-300 group-hover:-translate-y-full">
-                View Portfolio
+                Explore Our Work
               </span>
               <span className="absolute top-0 left-0 z-10 inline-block translate-y-full transition-transform duration-300 group-hover:translate-y-0">
-                View Portfolio
+                Explore Our Work
               </span>
-              <span className="absolute bottom-0 left-0 w-full h-px bg-foreground" />
-            </button>
-            <button
-              onClick={() => scrollToSection("contact")}
-              className="group relative text-label text-muted-foreground text-sm tracking-[0.15em] hover:text-foreground transition-colors duration-300"
-            >
-              <span className="relative z-10">Get in Touch</span>
-              <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground transition-all duration-500 group-hover:w-full" />
+              <span className="absolute bottom-0 left-0 w-full h-px bg-charcoal" />
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Scroll Indicator */}
-      <div
-        className={cn(
-          "absolute bottom-12 left-1/2 -translate-x-1/2 transition-all duration-1000",
-          isVisible ? "opacity-100" : "opacity-0"
-        )}
-        style={{ transitionDelay: "2500ms" }}
-      >
-        <button
-          onClick={() => scrollToSection("services")}
-          className="group flex flex-col items-center gap-3 text-muted-foreground hover:text-foreground transition-colors duration-300"
-        >
-          <span className="text-label text-[10px] tracking-[0.2em]">Scroll</span>
-          <div className="w-px h-16 bg-border relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-6 bg-foreground animate-[scrollDown_2s_ease-in-out_infinite]" />
-          </div>
-        </button>
       </div>
 
       {/* Corner decorations */}
@@ -247,8 +227,8 @@ const Hero = () => {
         )}
         style={{ transitionDelay: "1800ms" }}
       >
-        <div className="w-px h-16 bg-border" />
-        <div className="w-16 h-px bg-border" />
+        <div className="w-px h-16 bg-charcoal/30" />
+        <div className="w-16 h-px bg-charcoal/30" />
       </div>
       <div
         className={cn(
@@ -257,8 +237,21 @@ const Hero = () => {
         )}
         style={{ transitionDelay: "2000ms" }}
       >
-        <div className="w-16 h-px bg-border ml-auto" />
-        <div className="w-px h-16 bg-border ml-auto" />
+        <div className="w-16 h-px bg-charcoal/30 ml-auto" />
+        <div className="w-px h-16 bg-charcoal/30 ml-auto" />
+      </div>
+
+      {/* Bottom hint */}
+      <div
+        className={cn(
+          "absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-1000",
+          isVisible ? "opacity-100" : "opacity-0"
+        )}
+        style={{ transitionDelay: "2500ms" }}
+      >
+        <span className="text-label text-charcoal/40 text-[10px] tracking-[0.3em]">
+          Use menu to navigate
+        </span>
       </div>
     </section>
   );

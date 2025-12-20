@@ -1,10 +1,15 @@
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
 
 import teamMithileshwar from "@/assets/team-mithileshwar-ram-krishna.png";
 import teamManaswini from "@/assets/team-manaswini-na.png";
 import teamKrishna from "@/assets/team-krishna-telkar.png";
 import teamAnusha from "@/assets/team-anusha-kl.png";
+
+interface TeamProps {
+  onBack?: () => void;
+}
 
 interface TeamMember {
   name: string;
@@ -40,40 +45,42 @@ const teamMembers: TeamMember[] = [
   },
 ];
 
-const Team = () => {
+const Team = ({ onBack }: TeamProps) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <section
       id="team"
       ref={sectionRef}
-      className="py-24 lg:py-32 bg-secondary/30"
+      className="min-h-screen py-24 lg:py-32 bg-secondary"
     >
       <div className="container mx-auto px-6 lg:px-12">
+        {/* Back button */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className={cn(
+              "flex items-center gap-2 text-label text-charcoal/60 text-xs tracking-[0.15em] hover:text-charcoal transition-all duration-500 mb-12",
+              isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+            )}
+          >
+            <ArrowLeft size={16} />
+            <span>Back to Home</span>
+          </button>
+        )}
+
         {/* Section Header */}
         <div className="mb-16 lg:mb-24 text-center">
           <span
             className={cn(
-              "text-label text-stone text-xs tracking-[0.3em] mb-4 block transition-all duration-700",
+              "text-label text-charcoal/50 text-xs tracking-[0.3em] mb-4 block transition-all duration-700",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}
           >
@@ -81,7 +88,7 @@ const Team = () => {
           </span>
           <h2
             className={cn(
-              "font-serif text-4xl md:text-5xl lg:text-6xl text-foreground mb-6 transition-all duration-700 delay-100",
+              "font-serif text-4xl md:text-5xl lg:text-6xl text-charcoal mb-6 transition-all duration-700 delay-100",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}
           >
@@ -89,7 +96,7 @@ const Team = () => {
           </h2>
           <p
             className={cn(
-              "text-body text-lg text-muted-foreground max-w-2xl mx-auto transition-all duration-700 delay-200",
+              "text-body text-lg text-charcoal/60 max-w-2xl mx-auto transition-all duration-700 delay-200",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}
           >
@@ -124,7 +131,7 @@ const Team = () => {
                 />
                 <div
                   className={cn(
-                    "absolute inset-0 bg-foreground/20 transition-opacity duration-500",
+                    "absolute inset-0 bg-charcoal/30 transition-opacity duration-500",
                     hoveredIndex === index ? "opacity-100" : "opacity-0"
                   )}
                 />
@@ -145,13 +152,13 @@ const Team = () => {
               {/* Info */}
               <h3
                 className={cn(
-                  "font-serif text-xl text-foreground mb-1 transition-all duration-300",
+                  "font-serif text-xl text-charcoal mb-1 transition-all duration-300",
                   hoveredIndex === index ? "translate-x-2" : ""
                 )}
               >
                 {member.name}
               </h3>
-              <p className="text-label text-stone text-xs tracking-[0.1em]">
+              <p className="text-label text-charcoal/50 text-xs tracking-[0.1em]">
                 {member.role}
               </p>
             </article>
@@ -166,11 +173,11 @@ const Team = () => {
           )}
           style={{ transitionDelay: "800ms" }}
         >
-          <div className="h-px w-12 bg-border" />
-          <span className="text-label text-muted-foreground text-xs tracking-[0.2em]">
+          <div className="h-px w-12 bg-charcoal/20" />
+          <span className="text-label text-charcoal/40 text-xs tracking-[0.2em]">
             Together We Create
           </span>
-          <div className="h-px w-12 bg-border" />
+          <div className="h-px w-12 bg-charcoal/20" />
         </div>
       </div>
     </section>
