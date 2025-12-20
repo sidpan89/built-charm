@@ -165,7 +165,7 @@ const Hero = ({ onExplore }: HeroProps) => {
           </div>
 
           {/* Main Heading with Letter Animation */}
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-[5.5rem] xl:text-[7rem] text-charcoal leading-[0.95] tracking-tight mb-12">
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-charcoal leading-[0.95] tracking-tight mb-12">
             <span className="inline">
               {studioName.split("").map((letter, index) => (
                 <span
@@ -186,7 +186,7 @@ const Hero = ({ onExplore }: HeroProps) => {
             </span>
             <span
               className={cn(
-                "block mt-4 text-2xl md:text-3xl lg:text-4xl font-sans font-light text-charcoal/60 leading-relaxed transition-all duration-1000",
+                "block mt-4 text-lg md:text-xl lg:text-2xl font-sans font-light text-charcoal/60 leading-relaxed transition-all duration-1000",
                 isVisible ? "opacity-100 translate-y-0 blur-0" : "opacity-0 translate-y-8 blur-sm"
               )}
               style={{ transitionDelay: "1500ms" }}
@@ -241,18 +241,6 @@ const Hero = ({ onExplore }: HeroProps) => {
         <div className="w-px h-16 bg-charcoal/30 ml-auto" />
       </div>
 
-      {/* Bottom hint */}
-      <div
-        className={cn(
-          "absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-1000",
-          isVisible ? "opacity-100" : "opacity-0"
-        )}
-        style={{ transitionDelay: "2500ms" }}
-      >
-        <span className="text-label text-charcoal/40 text-[10px] tracking-[0.3em]">
-          Use menu to navigate
-        </span>
-      </div>
     </section>
   );
 };
