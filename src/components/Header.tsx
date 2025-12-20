@@ -3,19 +3,12 @@ import { cn } from "@/lib/utils";
 
 interface HeaderProps {
   className?: string;
+  onMenuToggle: (isOpen: boolean) => void;
+  isMenuOpen: boolean;
 }
 
-const navItems = [
-  { label: "Residential", href: "#residential" },
-  { label: "Commercial", href: "#commercial" },
-  { label: "Interior Design", href: "#interior" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
-];
-
-const Header = ({ className }: HeaderProps) => {
+const Header = ({ className, onMenuToggle, isMenuOpen }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -28,24 +21,16 @@ const Header = ({ className }: HeaderProps) => {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 100);
+    const timer = setTimeout(() => setIsVisible(true), 800);
     return () => clearTimeout(timer);
   }, []);
-
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id.replace("#", ""));
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      setIsMobileMenuOpen(false);
-    }
-  };
 
   return (
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        isScrolled
-          ? "bg-background/95 backdrop-blur-sm py-4 border-b border-border/50"
+        isScrolled && !isMenuOpen
+          ? "bg-background/90 backdrop-blur-md py-4"
           : "bg-transparent py-6",
         className
       )}
@@ -54,90 +39,53 @@ const Header = ({ className }: HeaderProps) => {
         {/* Logo */}
         <a
           href="/"
-          className={`relative z-10 group transition-all duration-700 ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}
+          className={cn(
+            "relative z-[60] group transition-all duration-700",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4",
+            isMenuOpen ? "text-background" : "text-foreground"
+          )}
         >
-          <span className="font-serif text-xl tracking-[0.1em] text-foreground">
+          <span className="font-serif text-xl tracking-[0.1em]">
             Studio Prangana
           </span>
         </a>
 
-        {/* Desktop Navigation */}
-        <nav
-          className={`hidden lg:flex items-center gap-10 transition-all duration-700 delay-200 ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          {navItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => scrollToSection(item.href)}
-              className="group relative text-label text-xs tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-300"
-            >
-              <span>{item.label}</span>
-              <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full" />
-            </button>
-          ))}
-        </nav>
-
-        {/* Mobile Menu Button */}
+        {/* Menu Button */}
         <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className={`lg:hidden relative z-50 p-2 transition-all duration-700 ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}
+          onClick={() => onMenuToggle(!isMenuOpen)}
+          className={cn(
+            "relative z-[60] flex items-center gap-3 transition-all duration-700",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4",
+            isMenuOpen ? "text-background" : "text-foreground"
+          )}
           aria-label="Toggle menu"
         >
-          <div className="relative w-6 h-5 flex flex-col justify-between">
+          <span className="text-label text-xs tracking-[0.2em] hidden md:block">
+            {isMenuOpen ? "Close" : "Menu"}
+          </span>
+          
+          {/* Animated menu icon */}
+          <div className="relative w-8 h-6 flex flex-col justify-center items-end gap-1.5">
             <span
               className={cn(
-                "block h-px bg-foreground transition-all duration-300 origin-center",
-                isMobileMenuOpen ? "rotate-45 translate-y-2" : ""
+                "block h-px bg-current transition-all duration-500 origin-right",
+                isMenuOpen ? "w-8 rotate-45 translate-y-[3px]" : "w-8"
               )}
             />
             <span
               className={cn(
-                "block h-px bg-foreground transition-all duration-300",
-                isMobileMenuOpen ? "opacity-0" : "w-4"
+                "block h-px bg-current transition-all duration-500",
+                isMenuOpen ? "w-0 opacity-0" : "w-5"
               )}
             />
             <span
               className={cn(
-                "block h-px bg-foreground transition-all duration-300 origin-center",
-                isMobileMenuOpen ? "-rotate-45 -translate-y-2" : ""
+                "block h-px bg-current transition-all duration-500 origin-right",
+                isMenuOpen ? "w-8 -rotate-45 -translate-y-[3px]" : "w-8"
               )}
             />
           </div>
         </button>
-
-        {/* Mobile Menu */}
-        <div
-          className={cn(
-            "fixed inset-0 bg-background z-40 flex flex-col items-center justify-center transition-all duration-500 lg:hidden",
-            isMobileMenuOpen
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          )}
-        >
-          <nav className="flex flex-col items-center gap-8">
-            {navItems.map((item, index) => (
-              <button
-                key={item.label}
-                onClick={() => scrollToSection(item.href)}
-                className={cn(
-                  "font-serif text-3xl text-foreground hover:text-stone transition-all duration-300",
-                  isMobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-                )}
-                style={{
-                  transitionDelay: isMobileMenuOpen ? `${index * 100}ms` : "0ms",
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-        </div>
       </div>
     </header>
   );
