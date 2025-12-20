@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Header from "@/components/Header";
+import FullscreenMenu from "@/components/FullscreenMenu";
 import Hero from "@/components/Hero";
 import HorizontalSlider from "@/components/HorizontalSlider";
 import Portfolio from "@/components/Portfolio";
@@ -11,17 +12,25 @@ import LoadingScreen from "@/components/LoadingScreen";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
       {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
-      
+
       <div
         className={`transition-opacity duration-500 ${
           isLoading ? "opacity-0" : "opacity-100"
         }`}
       >
-        <Header />
+        <Header
+          isMenuOpen={isMenuOpen}
+          onMenuToggle={setIsMenuOpen}
+        />
+        <FullscreenMenu
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+        />
         <main>
           <Hero />
           <HorizontalSlider />
