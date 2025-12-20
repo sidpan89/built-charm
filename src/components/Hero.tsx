@@ -54,20 +54,35 @@ const Hero = ({ onExplore }: HeroProps) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Generate leaf shadow positions
-  const leafShadows = Array.from({ length: 12 }, (_, i) => {
-    const baseX = 5 + (i % 4) * 25;
-    const baseY = -10 + Math.floor(i / 4) * 35;
-    const swayX = Math.sin(time + i * 0.5) * 15;
-    const swayY = Math.cos(time * 0.7 + i * 0.3) * 8;
-    const rotation = 30 + Math.sin(time * 0.5 + i) * 10;
+  // Generate leaf shadow positions with more organic shapes
+  const leafShadows = Array.from({ length: 18 }, (_, i) => {
+    const baseX = -5 + (i % 6) * 18;
+    const baseY = -15 + Math.floor(i / 6) * 40;
+    const swayX = Math.sin(time * 0.8 + i * 0.7) * 20;
+    const swayY = Math.cos(time * 0.5 + i * 0.4) * 12;
+    const rotation = 20 + Math.sin(time * 0.3 + i * 1.2) * 25;
     
     return {
-      x: baseX + swayX + mousePosition.x * 20,
-      y: baseY + swayY + mousePosition.y * 15,
+      x: baseX + swayX + mousePosition.x * 25,
+      y: baseY + swayY + mousePosition.y * 18,
       rotation,
-      scale: 0.8 + Math.sin(time * 0.3 + i * 0.7) * 0.2,
-      opacity: 0.04 + Math.sin(time * 0.4 + i) * 0.02,
+      scale: 0.6 + Math.sin(time * 0.25 + i * 0.9) * 0.3,
+      opacity: 0.03 + Math.sin(time * 0.35 + i * 0.6) * 0.015,
+    };
+  });
+
+  // Animated architectural arches
+  const archElements = Array.from({ length: 4 }, (_, i) => {
+    const baseX = 60 + i * 12;
+    const baseY = 20 + i * 15;
+    const breathe = Math.sin(time * 0.4 + i * 0.8) * 3;
+    
+    return {
+      x: baseX + mousePosition.x * 10,
+      y: baseY + breathe + mousePosition.y * 8,
+      scale: 0.8 + i * 0.15 + Math.sin(time * 0.3 + i) * 0.05,
+      opacity: 0.04 - i * 0.008,
+      rotation: -5 + Math.sin(time * 0.2 + i) * 2,
     };
   });
 
@@ -77,6 +92,67 @@ const Hero = ({ onExplore }: HeroProps) => {
       ref={heroRef}
       className="h-screen flex items-center justify-center relative bg-cream overflow-hidden"
     >
+      {/* Animated architectural arches - subtle geometric patterns */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {archElements.map((arch, i) => (
+          <svg
+            key={`arch-${i}`}
+            className="absolute"
+            style={{
+              right: `${arch.x - 30}%`,
+              top: `${arch.y}%`,
+              width: "400px",
+              height: "500px",
+              opacity: arch.opacity,
+              transform: `scale(${arch.scale}) rotate(${arch.rotation}deg)`,
+              transition: "transform 0.3s ease-out",
+            }}
+            viewBox="0 0 200 250"
+            fill="none"
+          >
+            {/* Main arch */}
+            <path
+              d="M20 250 L20 100 Q20 20 100 20 Q180 20 180 100 L180 250"
+              stroke="hsl(var(--charcoal))"
+              strokeWidth="1.5"
+              fill="none"
+              opacity="0.6"
+            />
+            {/* Inner arch */}
+            <path
+              d="M40 250 L40 110 Q40 45 100 45 Q160 45 160 110 L160 250"
+              stroke="hsl(var(--charcoal))"
+              strokeWidth="1"
+              fill="none"
+              opacity="0.4"
+            />
+            {/* Keystone detail */}
+            <circle cx="100" cy="20" r="4" fill="hsl(var(--charcoal))" opacity="0.3" />
+          </svg>
+        ))}
+        
+        {/* Animated window frame patterns */}
+        <svg
+          className="absolute"
+          style={{
+            right: "5%",
+            bottom: "10%",
+            width: "300px",
+            height: "400px",
+            opacity: 0.03 + Math.sin(time * 0.3) * 0.01,
+            transform: `translate(${mousePosition.x * -15}px, ${mousePosition.y * -10}px) rotate(${Math.sin(time * 0.15) * 2}deg)`,
+          }}
+          viewBox="0 0 150 200"
+          fill="none"
+        >
+          <rect x="10" y="10" width="130" height="180" stroke="hsl(var(--charcoal))" strokeWidth="2" fill="none" />
+          <line x1="75" y1="10" x2="75" y2="190" stroke="hsl(var(--charcoal))" strokeWidth="1" />
+          <line x1="10" y1="100" x2="140" y2="100" stroke="hsl(var(--charcoal))" strokeWidth="1" />
+          <rect x="25" y="25" width="45" height="65" stroke="hsl(var(--charcoal))" strokeWidth="0.5" fill="none" />
+          <rect x="80" y="25" width="45" height="65" stroke="hsl(var(--charcoal))" strokeWidth="0.5" fill="none" />
+        </svg>
+      </div>
+
       {/* Animated leaf shadows overlay */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {leafShadows.map((leaf, i) => (
@@ -86,20 +162,21 @@ const Hero = ({ onExplore }: HeroProps) => {
             style={{
               left: `${leaf.x}%`,
               top: `${leaf.y}%`,
-              width: "300px",
-              height: "400px",
-              background: `radial-gradient(ellipse 40% 60% at 50% 50%, hsl(var(--charcoal)) 0%, transparent 70%)`,
+              width: "350px",
+              height: "450px",
+              background: `radial-gradient(ellipse 35% 55% at 50% 50%, hsl(var(--charcoal)) 0%, transparent 65%)`,
               opacity: leaf.opacity,
               transform: `rotate(${leaf.rotation}deg) scale(${leaf.scale})`,
-              transition: "opacity 0.5s ease-out",
+              transition: "opacity 0.8s ease-out",
             }}
           />
         ))}
         
-        {/* Additional branch-like shadows */}
-        {[...Array(6)].map((_, i) => {
-          const branchX = 15 + i * 15 + Math.sin(time * 0.6 + i) * 8;
-          const branchY = -5 + (i % 2) * 20 + Math.cos(time * 0.4 + i * 0.5) * 5;
+        {/* Realistic branch shadows */}
+        {[...Array(8)].map((_, i) => {
+          const branchX = 10 + i * 12 + Math.sin(time * 0.5 + i * 0.7) * 10;
+          const branchY = -8 + (i % 3) * 18 + Math.cos(time * 0.35 + i * 0.5) * 6;
+          const branchRotation = 45 + i * 20 + Math.sin(time * 0.4 + i * 0.8) * 8;
           
           return (
             <div
@@ -108,13 +185,38 @@ const Hero = ({ onExplore }: HeroProps) => {
               style={{
                 left: `${branchX}%`,
                 top: `${branchY}%`,
-                width: "150px",
-                height: "250px",
-                background: `linear-gradient(${135 + i * 20}deg, hsl(var(--charcoal) / 0.06) 0%, transparent 60%)`,
-                transform: `rotate(${60 + i * 25 + Math.sin(time + i) * 5}deg)`,
-                borderRadius: "50% 50% 50% 50%",
+                width: "180px",
+                height: "280px",
+                background: `linear-gradient(${branchRotation}deg, hsl(var(--charcoal) / 0.05) 0%, transparent 55%)`,
+                transform: `rotate(${branchRotation}deg) scaleX(${0.8 + Math.sin(time * 0.3 + i) * 0.2})`,
+                borderRadius: "40% 60% 50% 50%",
               }}
             />
+          );
+        })}
+        
+        {/* Individual leaf shapes */}
+        {[...Array(12)].map((_, i) => {
+          const leafX = 5 + (i % 4) * 25 + Math.sin(time * 0.6 + i * 0.9) * 12;
+          const leafY = 5 + Math.floor(i / 4) * 30 + Math.cos(time * 0.4 + i * 0.6) * 8;
+          
+          return (
+            <svg
+              key={`leaf-${i}`}
+              className="absolute"
+              style={{
+                left: `${leafX}%`,
+                top: `${leafY}%`,
+                width: "60px",
+                height: "80px",
+                opacity: 0.04 + Math.sin(time * 0.5 + i) * 0.02,
+                transform: `rotate(${30 + i * 25 + Math.sin(time * 0.5 + i * 0.7) * 15}deg) scale(${1 + Math.sin(time * 0.3 + i) * 0.2})`,
+              }}
+              viewBox="0 0 30 40"
+              fill="hsl(var(--charcoal))"
+            >
+              <ellipse cx="15" cy="20" rx="12" ry="18" />
+            </svg>
           );
         })}
       </div>
