@@ -33,7 +33,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] bg-charcoal flex items-center justify-center transition-all duration-800 ${
+      className={`fixed inset-0 z-[100] bg-cream flex items-center justify-center transition-all duration-800 ${
         phase === "exit" ? "opacity-0 scale-110" : "opacity-100 scale-100"
       }`}
     >
@@ -42,7 +42,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="absolute h-px bg-background/10"
+            className="absolute h-px bg-charcoal/10"
             style={{
               top: `${20 + i * 15}%`,
               left: 0,
@@ -55,9 +55,30 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         ))}
       </div>
 
+      {/* Floating leaf shadows animation */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute opacity-[0.08]"
+            style={{
+              left: `${10 + i * 12}%`,
+              top: `${-20 + (i % 3) * 10}%`,
+              width: "200px",
+              height: "300px",
+              background: `radial-gradient(ellipse at center, hsl(var(--charcoal)) 0%, transparent 70%)`,
+              borderRadius: "50%",
+              transform: `rotate(${45 + i * 15}deg)`,
+              animation: `leafSway ${4 + i * 0.5}s ease-in-out infinite`,
+              animationDelay: `${i * 0.3}s`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Logo */}
       <div className="relative">
-        <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl text-cream tracking-[0.1em] overflow-hidden">
+        <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl text-charcoal tracking-[0.1em] overflow-hidden">
           {letters.map((letter, index) => (
             <span
               key={index}
@@ -78,7 +99,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
         {/* Underline reveal */}
         <div
-          className="absolute -bottom-4 left-0 h-px bg-background"
+          className="absolute -bottom-4 left-0 h-px bg-charcoal"
           style={{
             width: phase === "letters" ? "0%" : "100%",
             transition: "width 1s cubic-bezier(0.77, 0, 0.175, 1) 0.5s",
@@ -87,7 +108,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
         {/* Expanding circle effect */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/5"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-charcoal/5"
           style={{
             width: phase === "expand" || phase === "exit" ? "300vw" : "0",
             height: phase === "expand" || phase === "exit" ? "300vw" : "0",
@@ -99,7 +120,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       {/* Corner decorations */}
       <div className="absolute top-8 left-8">
         <div
-          className="w-12 h-px bg-background/30"
+          className="w-12 h-px bg-charcoal/30"
           style={{
             transform: `scaleX(${visibleLetters.length > 3 ? 1 : 0})`,
             transformOrigin: "left",
@@ -107,7 +128,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           }}
         />
         <div
-          className="w-px h-12 bg-background/30"
+          className="w-px h-12 bg-charcoal/30"
           style={{
             transform: `scaleY(${visibleLetters.length > 3 ? 1 : 0})`,
             transformOrigin: "top",
@@ -117,7 +138,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       </div>
       <div className="absolute bottom-8 right-8">
         <div
-          className="w-12 h-px bg-background/30 ml-auto"
+          className="w-12 h-px bg-charcoal/30 ml-auto"
           style={{
             transform: `scaleX(${visibleLetters.length > 10 ? 1 : 0})`,
             transformOrigin: "right",
@@ -125,7 +146,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           }}
         />
         <div
-          className="w-px h-12 bg-background/30 ml-auto"
+          className="w-px h-12 bg-charcoal/30 ml-auto"
           style={{
             transform: `scaleY(${visibleLetters.length > 10 ? 1 : 0})`,
             transformOrigin: "bottom",
@@ -133,6 +154,23 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           }}
         />
       </div>
+
+      <style>{`
+        @keyframes leafSway {
+          0%, 100% {
+            transform: rotate(45deg) translateX(0) translateY(0);
+          }
+          25% {
+            transform: rotate(50deg) translateX(10px) translateY(5px);
+          }
+          50% {
+            transform: rotate(42deg) translateX(-5px) translateY(10px);
+          }
+          75% {
+            transform: rotate(48deg) translateX(8px) translateY(-3px);
+          }
+        }
+      `}</style>
     </div>
   );
 };
