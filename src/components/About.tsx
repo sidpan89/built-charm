@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
+
+interface AboutProps {
+  onBack?: () => void;
+}
 
 const stats = [
   { value: "15", suffix: "+", label: "Years Experience" },
@@ -47,34 +52,36 @@ const AnimatedCounter = ({
   );
 };
 
-const About = () => {
+const About = ({ onBack }: AboutProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <section
       id="about"
       ref={sectionRef}
-      className="py-24 lg:py-32 bg-foreground text-background"
+      className="min-h-screen py-24 lg:py-32 bg-charcoal text-background"
     >
       <div className="container mx-auto px-6 lg:px-12">
+        {/* Back button */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className={cn(
+              "flex items-center gap-2 text-label text-background/60 text-xs tracking-[0.15em] hover:text-background transition-all duration-500 mb-12",
+              isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+            )}
+          >
+            <ArrowLeft size={16} />
+            <span>Back to Home</span>
+          </button>
+        )}
+
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24">
           {/* Left Column */}
           <div>
@@ -111,7 +118,7 @@ const About = () => {
                 isVisible ? "opacity-70 translate-y-0" : "opacity-0 translate-y-4"
               )}
             >
-              Whether it's a residential project, commercial development, or
+              Whether it is a residential project, commercial development, or
               heritage conservation, we bring the same passion and expertise to
               every project. Light, space, and materials are our tools; timeless
               design is our goal.
@@ -154,7 +161,7 @@ const About = () => {
           style={{ transitionDelay: "800ms" }}
         >
           <div className="max-w-3xl">
-            <span className="text-6xl text-stone/30 font-serif leading-none mb-4 block">"</span>
+            <span className="text-6xl text-stone/30 font-serif leading-none mb-4 block">&ldquo;</span>
             <blockquote className="font-serif text-3xl md:text-4xl italic leading-relaxed -mt-8">
               The most important material with which we design, is light.
             </blockquote>

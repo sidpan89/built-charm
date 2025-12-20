@@ -1,8 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
 
-const Contact = () => {
+interface ContactProps {
+  onBack?: () => void;
+}
+
+const Contact = ({ onBack }: ContactProps) => {
   const { toast } = useToast();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -16,20 +21,8 @@ const Contact = () => {
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,15 +44,29 @@ const Contact = () => {
     <section
       id="contact"
       ref={sectionRef}
-      className="py-24 lg:py-32 bg-background"
+      className="min-h-screen py-24 lg:py-32 bg-cream"
     >
       <div className="container mx-auto px-6 lg:px-12">
+        {/* Back button */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className={cn(
+              "flex items-center gap-2 text-label text-charcoal/60 text-xs tracking-[0.15em] hover:text-charcoal transition-all duration-500 mb-12",
+              isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+            )}
+          >
+            <ArrowLeft size={16} />
+            <span>Back to Home</span>
+          </button>
+        )}
+
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24">
           {/* Left Column - Info */}
           <div>
             <span
               className={cn(
-                "text-label text-stone text-xs tracking-[0.3em] mb-4 block transition-all duration-700",
+                "text-label text-charcoal/50 text-xs tracking-[0.3em] mb-4 block transition-all duration-700",
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               )}
             >
@@ -67,17 +74,17 @@ const Contact = () => {
             </span>
             <h2
               className={cn(
-                "font-serif text-4xl md:text-5xl lg:text-6xl text-foreground mb-8 transition-all duration-700 delay-100",
+                "font-serif text-4xl md:text-5xl lg:text-6xl text-charcoal mb-8 transition-all duration-700 delay-100",
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               )}
             >
-              Let's Create
+              Let&apos;s Create
               <br />
               Something Together
             </h2>
             <p
               className={cn(
-                "text-body text-lg text-muted-foreground mb-12 max-w-md transition-all duration-700 delay-200",
+                "text-body text-lg text-charcoal/60 mb-12 max-w-md transition-all duration-700 delay-200",
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               )}
             >
@@ -92,12 +99,12 @@ const Contact = () => {
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                 )}
               >
-                <span className="text-label text-stone text-xs tracking-[0.15em] mb-2 block">
+                <span className="text-label text-charcoal/50 text-xs tracking-[0.15em] mb-2 block">
                   Email
                 </span>
                 <a
                   href="mailto:hello@studioprangana.com"
-                  className="text-body text-lg text-foreground inline-flex items-center gap-2 group-hover:gap-4 transition-all duration-300"
+                  className="text-body text-lg text-charcoal inline-flex items-center gap-2 group-hover:gap-4 transition-all duration-300"
                 >
                   hello@studioprangana.com
                   <svg
@@ -123,12 +130,12 @@ const Contact = () => {
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                 )}
               >
-                <span className="text-label text-stone text-xs tracking-[0.15em] mb-2 block">
+                <span className="text-label text-charcoal/50 text-xs tracking-[0.15em] mb-2 block">
                   Phone
                 </span>
                 <a
                   href="tel:+919876543210"
-                  className="text-body text-lg text-foreground"
+                  className="text-body text-lg text-charcoal"
                 >
                   +91 98765 43210
                 </a>
@@ -139,10 +146,10 @@ const Contact = () => {
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                 )}
               >
-                <span className="text-label text-stone text-xs tracking-[0.15em] mb-2 block">
+                <span className="text-label text-charcoal/50 text-xs tracking-[0.15em] mb-2 block">
                   Studio
                 </span>
-                <address className="text-body text-lg text-foreground not-italic">
+                <address className="text-body text-lg text-charcoal not-italic">
                   Bangalore, Karnataka
                   <br />
                   India
@@ -166,8 +173,8 @@ const Contact = () => {
                     className={cn(
                       "text-label text-xs tracking-[0.1em] absolute left-0 transition-all duration-300",
                       focusedField === "name" || formData.name
-                        ? "-top-5 text-stone"
-                        : "top-4 text-muted-foreground"
+                        ? "-top-5 text-charcoal/50"
+                        : "top-4 text-charcoal/40"
                     )}
                   >
                     Name
@@ -181,7 +188,7 @@ const Contact = () => {
                     onFocus={() => setFocusedField("name")}
                     onBlur={() => setFocusedField(null)}
                     required
-                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-border text-foreground focus:outline-none focus:border-foreground transition-colors duration-300"
+                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-charcoal/20 text-charcoal focus:outline-none focus:border-charcoal transition-colors duration-300"
                   />
                 </div>
                 <div className="relative">
@@ -190,8 +197,8 @@ const Contact = () => {
                     className={cn(
                       "text-label text-xs tracking-[0.1em] absolute left-0 transition-all duration-300",
                       focusedField === "email" || formData.email
-                        ? "-top-5 text-stone"
-                        : "top-4 text-muted-foreground"
+                        ? "-top-5 text-charcoal/50"
+                        : "top-4 text-charcoal/40"
                     )}
                   >
                     Email
@@ -205,7 +212,7 @@ const Contact = () => {
                     onFocus={() => setFocusedField("email")}
                     onBlur={() => setFocusedField(null)}
                     required
-                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-border text-foreground focus:outline-none focus:border-foreground transition-colors duration-300"
+                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-charcoal/20 text-charcoal focus:outline-none focus:border-charcoal transition-colors duration-300"
                   />
                 </div>
               </div>
@@ -217,8 +224,8 @@ const Contact = () => {
                     className={cn(
                       "text-label text-xs tracking-[0.1em] absolute left-0 transition-all duration-300",
                       focusedField === "phone" || formData.phone
-                        ? "-top-5 text-stone"
-                        : "top-4 text-muted-foreground"
+                        ? "-top-5 text-charcoal/50"
+                        : "top-4 text-charcoal/40"
                     )}
                   >
                     Phone
@@ -231,13 +238,13 @@ const Contact = () => {
                     onChange={handleChange}
                     onFocus={() => setFocusedField("phone")}
                     onBlur={() => setFocusedField(null)}
-                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-border text-foreground focus:outline-none focus:border-foreground transition-colors duration-300"
+                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-charcoal/20 text-charcoal focus:outline-none focus:border-charcoal transition-colors duration-300"
                   />
                 </div>
                 <div className="relative">
                   <label
                     htmlFor="projectType"
-                    className="text-label text-stone text-xs tracking-[0.1em] absolute left-0 -top-5"
+                    className="text-label text-charcoal/50 text-xs tracking-[0.1em] absolute left-0 -top-5"
                   >
                     Project Type
                   </label>
@@ -246,13 +253,13 @@ const Contact = () => {
                     name="projectType"
                     value={formData.projectType}
                     onChange={handleChange}
-                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-border text-foreground focus:outline-none focus:border-foreground transition-colors duration-300 cursor-pointer"
+                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-charcoal/20 text-charcoal focus:outline-none focus:border-charcoal transition-colors duration-300 cursor-pointer"
                   >
-                    <option value="" className="bg-background">Select type</option>
-                    <option value="residential" className="bg-background">Residential</option>
-                    <option value="commercial" className="bg-background">Commercial</option>
-                    <option value="interior" className="bg-background">Interior Design</option>
-                    <option value="heritage" className="bg-background">Heritage & Conservation</option>
+                    <option value="" className="bg-cream">Select type</option>
+                    <option value="residential" className="bg-cream">Residential</option>
+                    <option value="commercial" className="bg-cream">Commercial</option>
+                    <option value="interior" className="bg-cream">Interior Design</option>
+                    <option value="heritage" className="bg-cream">Heritage & Conservation</option>
                   </select>
                 </div>
               </div>
@@ -263,8 +270,8 @@ const Contact = () => {
                   className={cn(
                     "text-label text-xs tracking-[0.1em] absolute left-0 transition-all duration-300",
                     focusedField === "message" || formData.message
-                      ? "-top-5 text-stone"
-                      : "top-4 text-muted-foreground"
+                      ? "-top-5 text-charcoal/50"
+                      : "top-4 text-charcoal/40"
                   )}
                 >
                   Message
@@ -278,13 +285,13 @@ const Contact = () => {
                   onBlur={() => setFocusedField(null)}
                   required
                   rows={4}
-                  className="w-full px-0 py-4 bg-transparent border-0 border-b border-border text-foreground focus:outline-none focus:border-foreground transition-colors duration-300 resize-none"
+                  className="w-full px-0 py-4 bg-transparent border-0 border-b border-charcoal/20 text-charcoal focus:outline-none focus:border-charcoal transition-colors duration-300 resize-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="group relative inline-flex items-center justify-center px-8 py-4 text-label text-sm tracking-[0.15em] bg-foreground text-background overflow-hidden transition-all duration-300 hover:bg-stone"
+                className="group relative inline-flex items-center justify-center px-8 py-4 text-label text-sm tracking-[0.15em] bg-charcoal text-background overflow-hidden transition-all duration-300 hover:bg-stone"
               >
                 <span className="relative z-10">Send Message</span>
               </button>
