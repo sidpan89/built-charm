@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
+import heroHouse from "@/assets/hero-house.jpg";
 
 interface HeroProps {
   onExplore?: () => void;
@@ -54,27 +55,22 @@ const Hero = ({ onExplore }: HeroProps) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Generate leaf shadow positions with more organic shapes
-  const leafShadows = Array.from({ length: 18 }, (_, i) => {
-    const baseX = -5 + (i % 6) * 18;
-    const baseY = -15 + Math.floor(i / 6) * 40;
-    const swayX = Math.sin(time * 0.8 + i * 0.7) * 20;
-    const swayY = Math.cos(time * 0.5 + i * 0.4) * 12;
-    const rotation = 20 + Math.sin(time * 0.3 + i * 1.2) * 25;
+  // Generate leaf shadow positions
+  const leafShadows = Array.from({ length: 15 }, (_, i) => {
+    const baseX = -10 + (i % 5) * 22;
+    const baseY = -15 + Math.floor(i / 5) * 35;
+    const swayX = Math.sin(time * 0.7 + i * 0.8) * 18;
+    const swayY = Math.cos(time * 0.5 + i * 0.5) * 10;
+    const rotation = 15 + Math.sin(time * 0.4 + i * 1.1) * 20;
     
     return {
-      x: baseX + swayX + mousePosition.x * 25,
-      y: baseY + swayY + mousePosition.y * 18,
+      x: baseX + swayX + mousePosition.x * 20,
+      y: baseY + swayY + mousePosition.y * 15,
       rotation,
-      scale: 0.6 + Math.sin(time * 0.25 + i * 0.9) * 0.3,
-      opacity: 0.03 + Math.sin(time * 0.35 + i * 0.6) * 0.015,
+      scale: 0.7 + Math.sin(time * 0.3 + i * 0.8) * 0.25,
+      opacity: 0.06 + Math.sin(time * 0.4 + i * 0.5) * 0.025,
     };
   });
-
-  // House breathing animation
-  const houseBreathe = Math.sin(time * 0.3) * 2;
-  const houseMouseX = mousePosition.x * 8;
-  const houseMouseY = mousePosition.y * 5;
 
   return (
     <section
@@ -82,207 +78,34 @@ const Hero = ({ onExplore }: HeroProps) => {
       ref={heroRef}
       className="h-screen flex items-center justify-center relative bg-cream overflow-hidden"
     >
-      {/* Large architectural house silhouette */}
+      {/* Real architectural house background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <svg
-          className="absolute"
+        <div
+          className={cn(
+            "absolute inset-0 transition-all duration-1000",
+            isVisible ? "opacity-100" : "opacity-0"
+          )}
           style={{
-            right: "-5%",
-            bottom: "-10%",
-            width: "70%",
-            height: "90%",
-            opacity: 0.04 + Math.sin(time * 0.2) * 0.01,
-            transform: `translate(${houseMouseX}px, ${houseMouseY + houseBreathe}px)`,
-            transition: "transform 0.5s ease-out",
+            transform: `translate(${mousePosition.x * 15}px, ${mousePosition.y * 10}px) scale(1.1)`,
+            transition: "opacity 1s, transform 1.5s ease-out",
           }}
-          viewBox="0 0 500 400"
-          fill="none"
         >
-          {/* Main house body */}
-          <path
-            d="M50 400 L50 180 L250 50 L450 180 L450 400 Z"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="1.5"
-            fill="none"
-          />
-          {/* Roof peak detail */}
-          <path
-            d="M250 50 L250 20 M240 50 L260 50"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="1"
-          />
-          {/* Left window with arch */}
-          <path
-            d="M100 250 L100 180 Q100 150 140 150 Q180 150 180 180 L180 250 Z"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="1"
-            fill="none"
-          />
-          {/* Window dividers */}
-          <line x1="140" y1="150" x2="140" y2="250" stroke="hsl(var(--charcoal))" strokeWidth="0.5" />
-          <line x1="100" y1="200" x2="180" y2="200" stroke="hsl(var(--charcoal))" strokeWidth="0.5" />
-          
-          {/* Right window with arch */}
-          <path
-            d="M320 250 L320 180 Q320 150 360 150 Q400 150 400 180 L400 250 Z"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="1"
-            fill="none"
-          />
-          <line x1="360" y1="150" x2="360" y2="250" stroke="hsl(var(--charcoal))" strokeWidth="0.5" />
-          <line x1="320" y1="200" x2="400" y2="200" stroke="hsl(var(--charcoal))" strokeWidth="0.5" />
-          
-          {/* Center door with large arch */}
-          <path
-            d="M200 400 L200 220 Q200 160 250 160 Q300 160 300 220 L300 400"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="1.5"
-            fill="none"
-          />
-          {/* Door panels */}
-          <line x1="250" y1="160" x2="250" y2="400" stroke="hsl(var(--charcoal))" strokeWidth="0.5" />
-          <circle cx="235" cy="300" r="4" stroke="hsl(var(--charcoal))" strokeWidth="0.5" fill="none" />
-          <circle cx="265" cy="300" r="4" stroke="hsl(var(--charcoal))" strokeWidth="0.5" fill="none" />
-          
-          {/* Decorative arch above door */}
-          <path
-            d="M180 170 Q250 100 320 170"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="0.5"
-            fill="none"
-          />
-          
-          {/* Foundation line */}
-          <line x1="30" y1="400" x2="470" y2="400" stroke="hsl(var(--charcoal))" strokeWidth="2" />
-          
-          {/* Small upper windows */}
-          <rect x="120" y="100" width="30" height="40" stroke="hsl(var(--charcoal))" strokeWidth="0.5" fill="none" />
-          <rect x="350" y="100" width="30" height="40" stroke="hsl(var(--charcoal))" strokeWidth="0.5" fill="none" />
-          
-          {/* Chimney */}
-          <rect x="380" y="60" width="30" height="60" stroke="hsl(var(--charcoal))" strokeWidth="1" fill="none" />
-        </svg>
-
-        {/* Secondary house layer - smaller, offset */}
-        <svg
-          className="absolute"
-          style={{
-            right: "15%",
-            bottom: "5%",
-            width: "35%",
-            height: "50%",
-            opacity: 0.025 + Math.sin(time * 0.25 + 1) * 0.008,
-            transform: `translate(${houseMouseX * 0.5}px, ${(houseMouseY + houseBreathe) * 0.5}px)`,
-          }}
-          viewBox="0 0 300 250"
-          fill="none"
-        >
-          <path
-            d="M30 250 L30 120 L150 30 L270 120 L270 250 Z"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="1"
-            fill="none"
-          />
-          <path
-            d="M100 250 L100 150 Q100 120 130 120 Q160 120 160 150 L160 250"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="0.8"
-            fill="none"
-          />
-          <path
-            d="M180 180 L180 130 Q180 110 210 110 Q240 110 240 130 L240 180 Z"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="0.8"
-            fill="none"
-          />
-        </svg>
-      </div>
-
-      {/* Animated tree silhouettes on the sides */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Left tree */}
-        <svg
-          className="absolute"
-          style={{
-            left: "-5%",
-            bottom: "0%",
-            width: "30%",
-            height: "80%",
-            opacity: 0.05,
-            transform: `translate(${mousePosition.x * 15}px, 0) rotate(${Math.sin(time * 0.4) * 1}deg)`,
-            transformOrigin: "bottom center",
-          }}
-          viewBox="0 0 200 350"
-          fill="none"
-        >
-          {/* Trunk */}
-          <path
-            d="M90 350 L90 200 Q85 150 100 100 Q115 150 110 200 L110 350"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="2"
-            fill="none"
-          />
-          {/* Branches */}
-          <path
-            d="M95 180 Q50 140 30 160"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="1"
-            fill="none"
+          <img
+            src={heroHouse}
+            alt="Modern architectural house"
+            className="w-full h-full object-cover"
             style={{
-              transform: `rotate(${Math.sin(time * 0.5) * 3}deg)`,
-              transformOrigin: "95px 180px",
+              opacity: 0.15,
+              filter: "grayscale(30%)",
             }}
           />
-          <path
-            d="M105 160 Q150 120 170 140"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="1"
-            fill="none"
-          />
-          <path
-            d="M98 140 Q60 100 40 110"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="0.8"
-            fill="none"
-          />
-          <path
-            d="M102 120 Q140 80 160 90"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="0.8"
-            fill="none"
-          />
-        </svg>
-
-        {/* Right tree */}
-        <svg
-          className="absolute"
-          style={{
-            right: "-8%",
-            bottom: "0%",
-            width: "35%",
-            height: "90%",
-            opacity: 0.04,
-            transform: `translate(${mousePosition.x * -10}px, 0) rotate(${Math.sin(time * 0.35 + 1) * 1.5}deg)`,
-            transformOrigin: "bottom center",
-          }}
-          viewBox="0 0 250 400"
-          fill="none"
-        >
-          <path
-            d="M120 400 L120 220 Q110 150 125 80 Q140 150 130 220 L130 400"
-            stroke="hsl(var(--charcoal))"
-            strokeWidth="2"
-            fill="none"
-          />
-          <path d="M122 200 Q70 160 50 180" stroke="hsl(var(--charcoal))" strokeWidth="1" fill="none" />
-          <path d="M128 180 Q180 140 200 160" stroke="hsl(var(--charcoal))" strokeWidth="1" fill="none" />
-          <path d="M124 150 Q80 110 60 125" stroke="hsl(var(--charcoal))" strokeWidth="0.8" fill="none" />
-          <path d="M126 130 Q170 90 190 105" stroke="hsl(var(--charcoal))" strokeWidth="0.8" fill="none" />
-          <path d="M125 100 Q90 60 70 75" stroke="hsl(var(--charcoal))" strokeWidth="0.6" fill="none" />
-        </svg>
+          {/* Gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-cream via-cream/90 to-cream/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-cream via-transparent to-cream/50" />
+        </div>
       </div>
 
-      {/* Animated leaf shadows overlay */}
+      {/* Animated leaf shadows overlay - creates dappled light effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {leafShadows.map((leaf, i) => (
           <div
@@ -291,21 +114,21 @@ const Hero = ({ onExplore }: HeroProps) => {
             style={{
               left: `${leaf.x}%`,
               top: `${leaf.y}%`,
-              width: "300px",
-              height: "400px",
-              background: `radial-gradient(ellipse 35% 55% at 50% 50%, hsl(var(--charcoal)) 0%, transparent 65%)`,
+              width: "280px",
+              height: "380px",
+              background: `radial-gradient(ellipse 40% 60% at 50% 50%, hsl(var(--charcoal)) 0%, transparent 60%)`,
               opacity: leaf.opacity,
               transform: `rotate(${leaf.rotation}deg) scale(${leaf.scale})`,
-              transition: "opacity 0.8s ease-out",
+              transition: "opacity 0.6s ease-out",
             }}
           />
         ))}
         
-        {/* Individual animated leaves */}
-        {[...Array(20)].map((_, i) => {
-          const leafX = 5 + (i % 5) * 20 + Math.sin(time * 0.6 + i * 0.9) * 15;
-          const leafY = -5 + Math.floor(i / 5) * 25 + Math.cos(time * 0.4 + i * 0.6) * 10;
-          const leafRotation = 30 + i * 18 + Math.sin(time * 0.5 + i * 0.7) * 20;
+        {/* Individual leaf shapes for more realism */}
+        {[...Array(25)].map((_, i) => {
+          const leafX = (i % 5) * 22 + Math.sin(time * 0.55 + i * 0.75) * 12;
+          const leafY = -8 + Math.floor(i / 5) * 22 + Math.cos(time * 0.4 + i * 0.55) * 8;
+          const leafRotation = 20 + i * 15 + Math.sin(time * 0.45 + i * 0.65) * 18;
           
           return (
             <svg
@@ -314,23 +137,23 @@ const Hero = ({ onExplore }: HeroProps) => {
               style={{
                 left: `${leafX}%`,
                 top: `${leafY}%`,
-                width: "50px",
-                height: "70px",
-                opacity: 0.035 + Math.sin(time * 0.5 + i) * 0.015,
-                transform: `rotate(${leafRotation}deg) scale(${0.8 + Math.sin(time * 0.3 + i) * 0.3})`,
+                width: "45px",
+                height: "60px",
+                opacity: 0.055 + Math.sin(time * 0.5 + i * 0.8) * 0.025,
+                transform: `rotate(${leafRotation}deg) scale(${0.75 + Math.sin(time * 0.35 + i * 0.7) * 0.25})`,
               }}
               viewBox="0 0 30 40"
               fill="hsl(var(--charcoal))"
             >
-              <ellipse cx="15" cy="20" rx="10" ry="16" />
+              <ellipse cx="15" cy="20" rx="9" ry="15" />
             </svg>
           );
         })}
         
-        {/* Dancing branch shadows */}
-        {[...Array(6)].map((_, i) => {
-          const branchX = 8 + i * 15 + Math.sin(time * 0.45 + i * 0.8) * 12;
-          const branchY = -10 + (i % 2) * 20 + Math.cos(time * 0.3 + i * 0.5) * 8;
+        {/* Branch shadows */}
+        {[...Array(5)].map((_, i) => {
+          const branchX = 5 + i * 20 + Math.sin(time * 0.4 + i * 0.9) * 10;
+          const branchY = -12 + (i % 2) * 25 + Math.cos(time * 0.35 + i * 0.6) * 6;
           
           return (
             <div
@@ -339,11 +162,11 @@ const Hero = ({ onExplore }: HeroProps) => {
               style={{
                 left: `${branchX}%`,
                 top: `${branchY}%`,
-                width: "200px",
-                height: "300px",
-                background: `linear-gradient(${50 + i * 25}deg, hsl(var(--charcoal) / 0.04) 0%, transparent 50%)`,
-                transform: `rotate(${40 + i * 30 + Math.sin(time * 0.4 + i) * 10}deg)`,
-                borderRadius: "40% 60% 50% 50%",
+                width: "180px",
+                height: "280px",
+                background: `linear-gradient(${45 + i * 30}deg, hsl(var(--charcoal) / 0.06) 0%, transparent 55%)`,
+                transform: `rotate(${35 + i * 28 + Math.sin(time * 0.35 + i * 0.7) * 8}deg)`,
+                borderRadius: "45% 55% 50% 50%",
               }}
             />
           );
