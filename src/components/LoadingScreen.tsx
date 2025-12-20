@@ -33,7 +33,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] bg-foreground flex items-center justify-center transition-all duration-800 ${
+      className={`fixed inset-0 z-[100] bg-charcoal flex items-center justify-center transition-all duration-800 ${
         phase === "exit" ? "opacity-0 scale-110" : "opacity-100 scale-100"
       }`}
     >
@@ -57,7 +57,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
       {/* Logo */}
       <div className="relative">
-        <h1 className="font-serif text-4xl md:text-6xl lg:text-8xl text-background tracking-[0.1em] overflow-hidden">
+        <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl text-cream tracking-[0.1em] overflow-hidden">
           {letters.map((letter, index) => (
             <span
               key={index}
