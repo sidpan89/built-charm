@@ -1,112 +1,86 @@
-import ScrollReveal from "./ScrollReveal";
-import MagneticButton from "./MagneticButton";
-
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="py-16 lg:py-24 bg-foreground text-background relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute w-[400px] h-[400px] rounded-full bg-gradient-to-br from-background/5 to-transparent blur-3xl -top-48 right-1/4 animate-float" />
-      </div>
-
-      <div className="container mx-auto px-6 lg:px-12 relative">
+    <footer className="py-16 lg:py-24 bg-foreground text-background">
+      <div className="container mx-auto px-6 lg:px-12">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Logo & Tagline */}
-          <ScrollReveal className="lg:col-span-2">
-            <MagneticButton strength={0.1}>
-              <a href="/" className="font-serif text-2xl tracking-wider mb-4 inline-block group">
-                {"STUDIO".split("").map((letter, i) => (
-                  <span
-                    key={i}
-                    className="inline-block transition-all duration-500 group-hover:-translate-y-1 group-hover:text-stone"
-                    style={{ transitionDelay: `${i * 40}ms` }}
-                  >
-                    {letter}
-                  </span>
-                ))}
-                <span className="mx-2" />
-                {"PRANGANA".split("").map((letter, i) => (
-                  <span
-                    key={i}
-                    className="inline-block transition-all duration-500 group-hover:-translate-y-1"
-                    style={{ transitionDelay: `${(i + 7) * 40}ms` }}
-                  >
-                    {letter}
-                  </span>
-                ))}
-              </a>
-            </MagneticButton>
+          <div className="lg:col-span-2">
+            <a href="/" className="font-serif text-2xl tracking-[0.1em] mb-4 inline-block">
+              Studio Prangana
+            </a>
             <p className="text-body text-sm opacity-60 max-w-sm mt-4">
-              An award-winning architectural and interior design studio creating
+              An architectural and interior design studio creating
               spaces that inspire, elevate, and transform.
             </p>
-          </ScrollReveal>
+          </div>
 
           {/* Quick Links */}
-          <ScrollReveal delay={100}>
-            <span className="text-label text-stone mb-6 block text-xs tracking-[0.2em]">
+          <div>
+            <span className="text-label text-stone text-xs tracking-[0.2em] mb-6 block">
               Quick Links
             </span>
             <nav className="flex flex-col gap-3">
-              {["Services", "Portfolio", "About", "Contact"].map((item, index) => (
-                <MagneticButton key={item} strength={0.15}>
-                  <a
-                    href={`#${item.toLowerCase()}`}
-                    className="text-body text-sm opacity-60 hover:opacity-100 transition-all duration-300 inline-flex items-center gap-2 group"
-                  >
-                    <span className="w-0 h-px bg-background transition-all duration-300 group-hover:w-4" />
-                    {item}
-                  </a>
-                </MagneticButton>
+              {["Portfolio", "About", "Team", "Contact"].map((item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  className="text-body text-sm opacity-60 hover:opacity-100 transition-opacity duration-300 inline-flex items-center gap-2 group"
+                >
+                  <span className="w-0 h-px bg-background transition-all duration-300 group-hover:w-4" />
+                  {item}
+                </a>
               ))}
             </nav>
-          </ScrollReveal>
+          </div>
 
           {/* Social */}
-          <ScrollReveal delay={200}>
-            <span className="text-label text-stone mb-6 block text-xs tracking-[0.2em]">
+          <div>
+            <span className="text-label text-stone text-xs tracking-[0.2em] mb-6 block">
               Follow Us
             </span>
             <nav className="flex flex-col gap-3">
-              {["Instagram", "LinkedIn", "Pinterest"].map((item) => (
-                <MagneticButton key={item} strength={0.15}>
-                  <a
-                    href="#"
-                    className="text-body text-sm opacity-60 hover:opacity-100 transition-all duration-300 inline-flex items-center gap-2 group"
-                  >
-                    <span className="w-0 h-px bg-background transition-all duration-300 group-hover:w-4" />
-                    {item}
-                  </a>
-                </MagneticButton>
-              ))}
+              <a
+                href="https://www.instagram.com/studio_prangana/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-body text-sm opacity-60 hover:opacity-100 transition-opacity duration-300 inline-flex items-center gap-2 group"
+              >
+                <span className="w-0 h-px bg-background transition-all duration-300 group-hover:w-4" />
+                Instagram
+              </a>
+              <a
+                href="#"
+                className="text-body text-sm opacity-60 hover:opacity-100 transition-opacity duration-300 inline-flex items-center gap-2 group"
+              >
+                <span className="w-0 h-px bg-background transition-all duration-300 group-hover:w-4" />
+                LinkedIn
+              </a>
             </nav>
-          </ScrollReveal>
+          </div>
         </div>
 
         {/* Bottom Bar */}
-        <ScrollReveal delay={300}>
-          <div className="pt-8 border-t border-background/20 flex flex-col md:flex-row justify-between gap-4">
-            <p className="text-body text-xs opacity-40">
-              © {currentYear} Studio Prangana. All rights reserved.
-            </p>
-            <div className="flex gap-6">
-              <a
-                href="#"
-                className="text-body text-xs opacity-40 hover:opacity-100 transition-opacity duration-300 reveal-line"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="#"
-                className="text-body text-xs opacity-40 hover:opacity-100 transition-opacity duration-300 reveal-line"
-              >
-                Terms of Service
-              </a>
-            </div>
+        <div className="pt-8 border-t border-background/20 flex flex-col md:flex-row justify-between gap-4">
+          <p className="text-body text-xs opacity-40">
+            © {currentYear} Studio Prangana. All rights reserved.
+          </p>
+          <div className="flex gap-6">
+            <a
+              href="#"
+              className="text-body text-xs opacity-40 hover:opacity-100 transition-opacity duration-300"
+            >
+              Privacy Policy
+            </a>
+            <a
+              href="#"
+              className="text-body text-xs opacity-40 hover:opacity-100 transition-opacity duration-300"
+            >
+              Terms of Service
+            </a>
           </div>
-        </ScrollReveal>
+        </div>
       </div>
     </footer>
   );

@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import ScrollReveal from "./ScrollReveal";
 
 type Project = {
   id: number;
@@ -42,11 +41,8 @@ const projects: Project[] = [
   },
 ];
 
-const InstagramEmbed = ({ embedId, title }: { embedId: string; title: string }) => {
-  const [loaded, setLoaded] = useState(false);
-
+const InstagramEmbed = ({ embedId }: { embedId: string }) => {
   useEffect(() => {
-    // Load Instagram embed script
     if (typeof window !== 'undefined' && !(window as any).instgrm) {
       const script = document.createElement('script');
       script.src = 'https://www.instagram.com/embed.js';
@@ -55,12 +51,10 @@ const InstagramEmbed = ({ embedId, title }: { embedId: string; title: string }) 
         if ((window as any).instgrm) {
           (window as any).instgrm.Embeds.process();
         }
-        setLoaded(true);
       };
       document.body.appendChild(script);
     } else if ((window as any).instgrm) {
       (window as any).instgrm.Embeds.process();
-      setLoaded(true);
     }
   }, [embedId]);
 
@@ -113,158 +107,179 @@ const InstagramEmbed = ({ embedId, title }: { embedId: string; title: string }) 
 };
 
 const Portfolio = () => {
+  const [isVisible, setIsVisible] = useState(false);
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section id="portfolio" className="py-24 lg:py-32 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute w-[800px] h-[800px] rounded-full bg-gradient-to-br from-muted/30 to-transparent blur-3xl -bottom-96 -left-48 animate-morph" />
-      </div>
-
-      <div className="container mx-auto px-6 lg:px-12 relative">
+    <section
+      id="portfolio"
+      ref={sectionRef}
+      className="py-24 lg:py-32 bg-background"
+    >
+      <div className="container mx-auto px-6 lg:px-12">
         {/* Section Header */}
-        <div className="mb-16">
-          <ScrollReveal>
-            <span className="text-label text-stone mb-4 block tracking-[0.2em]">
-              Portfolio
-            </span>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <h2 className="text-display text-4xl md:text-5xl lg:text-6xl text-foreground">
-              Selected Works
-            </h2>
-          </ScrollReveal>
+        <div className="mb-16 lg:mb-24">
+          <span
+            className={cn(
+              "text-label text-stone text-xs tracking-[0.3em] mb-4 block transition-all duration-700",
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            )}
+          >
+            Portfolio
+          </span>
+          <h2
+            className={cn(
+              "font-serif text-4xl md:text-5xl lg:text-6xl text-foreground transition-all duration-700 delay-100",
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            )}
+          >
+            Selected Works
+          </h2>
         </div>
 
         {/* Projects List */}
-        <div className="space-y-24">
+        <div className="space-y-24 lg:space-y-32">
           {projects.map((project, index) => (
-            <ScrollReveal
+            <article
               key={project.id}
-              delay={index * 150}
-              direction={index % 2 === 0 ? "left" : "right"}
+              className={cn(
+                "group transition-all duration-700",
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              )}
+              style={{ transitionDelay: `${200 + index * 150}ms` }}
+              onMouseEnter={() => setHoveredProject(project.id)}
+              onMouseLeave={() => setHoveredProject(null)}
             >
-              <div
-                className="group cursor-pointer relative"
-                onMouseEnter={() => setHoveredProject(project.id)}
-                onMouseLeave={() => setHoveredProject(null)}
-              >
-                {/* Project Header */}
-                <div className="mb-8">
-                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-4">
-                    <div>
-                      <span
-                        className={cn(
-                          "text-label text-stone mb-2 block text-xs transition-all duration-300",
-                          hoveredProject === project.id
-                            ? "tracking-[0.2em]"
-                            : "tracking-[0.15em]"
-                        )}
-                      >
-                        {project.category}
-                      </span>
-                      <h3
-                        className={cn(
-                          "font-serif text-2xl lg:text-3xl xl:text-4xl text-foreground transition-all duration-300",
-                          hoveredProject === project.id ? "translate-x-2" : "translate-x-0"
-                        )}
-                      >
-                        {project.title}
-                      </h3>
-                    </div>
-                    <span
-                      className={cn(
-                        "text-body text-muted-foreground text-sm transition-all duration-300 lg:text-right",
-                        hoveredProject === project.id
-                          ? "opacity-100 translate-x-0"
-                          : "opacity-60"
-                      )}
-                    >
-                      {project.location}
-                    </span>
-                  </div>
-                  <p className="text-body text-muted-foreground max-w-3xl leading-relaxed">
+              {/* Project Header */}
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 mb-8">
+                <div>
+                  <span
+                    className={cn(
+                      "text-label text-stone text-xs tracking-[0.2em] mb-2 block transition-all duration-300",
+                      hoveredProject === project.id ? "tracking-[0.25em]" : ""
+                    )}
+                  >
+                    {project.category}
+                  </span>
+                  <h3
+                    className={cn(
+                      "font-serif text-2xl lg:text-3xl xl:text-4xl text-foreground transition-all duration-300",
+                      hoveredProject === project.id ? "translate-x-2" : ""
+                    )}
+                  >
+                    {project.title}
+                  </h3>
+                </div>
+                <div className="flex flex-col justify-end">
+                  <p className="text-body text-muted-foreground leading-relaxed">
                     {project.description}
                   </p>
+                  <span className="text-label text-stone/60 text-xs tracking-[0.15em] mt-4">
+                    {project.location}
+                  </span>
                 </div>
-
-                {/* Instagram Embed */}
-                <div className="rounded-lg overflow-hidden">
-                  <InstagramEmbed embedId={project.instagramEmbedId} title={project.title} />
-                </div>
-
-                {/* View on Instagram Link */}
-                <div className="mt-6">
-                  <a
-                    href={project.instagramUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group/link inline-flex items-center gap-2 text-label text-foreground hover:text-stone transition-colors duration-300"
-                  >
-                    <span className="relative">
-                      View on Instagram
-                      <span className="absolute bottom-0 left-0 w-full h-px bg-foreground scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left" />
-                    </span>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      className="transition-transform duration-300 group-hover/link:translate-x-1"
-                    >
-                      <path
-                        d="M7 17L17 7M17 7H7M17 7V17"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </a>
-                </div>
-
-                {/* Divider */}
-                {index < projects.length - 1 && (
-                  <div className="mt-16 h-px bg-border/50" />
-                )}
               </div>
-            </ScrollReveal>
+
+              {/* Instagram Embed */}
+              <div className="rounded-sm overflow-hidden">
+                <InstagramEmbed embedId={project.instagramEmbedId} />
+              </div>
+
+              {/* View Link */}
+              <div className="mt-6 flex justify-between items-center">
+                <a
+                  href={project.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group/link inline-flex items-center gap-2 text-label text-foreground text-xs tracking-[0.15em]"
+                >
+                  <span className="relative">
+                    View on Instagram
+                    <span className="absolute bottom-0 left-0 w-full h-px bg-foreground scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left" />
+                  </span>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="transition-transform duration-300 group-hover/link:translate-x-1"
+                  >
+                    <path
+                      d="M7 17L17 7M17 7H7M17 7V17"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </a>
+                <span className="text-label text-muted-foreground/40 text-xs">
+                  0{index + 1}
+                </span>
+              </div>
+
+              {/* Divider */}
+              {index < projects.length - 1 && (
+                <div className="mt-16 lg:mt-24 h-px bg-border" />
+              )}
+            </article>
           ))}
         </div>
 
         {/* View All Link */}
-        <ScrollReveal delay={400}>
-          <div className="mt-16 text-center">
-            <a
-              href="https://www.instagram.com/studio_prangana/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center gap-3 text-label text-foreground relative overflow-hidden"
+        <div
+          className={cn(
+            "mt-24 text-center transition-all duration-700",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          )}
+          style={{ transitionDelay: "800ms" }}
+        >
+          <a
+            href="https://www.instagram.com/studio_prangana/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-3 text-label text-foreground text-sm tracking-[0.15em]"
+          >
+            <span className="relative">
+              View All Projects
+              <span className="absolute bottom-0 left-0 w-full h-px bg-foreground" />
+              <span className="absolute bottom-0 left-0 w-full h-px bg-stone scale-x-0 origin-right transition-transform duration-500 group-hover:scale-x-100 group-hover:origin-left" />
+            </span>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              className="transition-transform duration-300 group-hover:translate-x-1"
             >
-              <span className="relative">
-                View All Projects on Instagram
-                <span className="absolute bottom-0 left-0 w-full h-px bg-foreground scale-x-100 group-hover:scale-x-0 transition-transform duration-500 origin-right" />
-                <span className="absolute bottom-0 left-0 w-full h-px bg-stone scale-x-0 group-hover:scale-x-100 transition-transform duration-500 delay-200 origin-left" />
-              </span>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                className="transition-transform duration-300 group-hover:translate-x-2"
-              >
-                <path
-                  d="M1 8H15M15 8L8 1M15 8L8 15"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </a>
-          </div>
-        </ScrollReveal>
+              <path
+                d="M1 8H15M15 8L8 1M15 8L8 15"
+                stroke="currentColor"
+                strokeWidth="1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </section>
   );
