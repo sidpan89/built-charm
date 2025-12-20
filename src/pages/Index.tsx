@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import Services from "@/components/Services";
+import HorizontalSlider from "@/components/HorizontalSlider";
 import Portfolio from "@/components/Portfolio";
 import Team from "@/components/Team";
 import About from "@/components/About";
@@ -24,7 +24,7 @@ const Index = () => {
         <Header />
         <main>
           <Hero />
-          <Services />
+          <HorizontalSlider />
           <Portfolio />
           <Team />
           <About />
@@ -32,19 +32,6 @@ const Index = () => {
         </main>
         <Footer />
       </div>
-
-      {/* Custom cursor effect - decorative */}
-      <style>{`
-        @media (hover: hover) {
-          body {
-            cursor: default;
-          }
-          
-          a, button {
-            cursor: pointer;
-          }
-        }
-      `}</style>
     </div>
   );
 };

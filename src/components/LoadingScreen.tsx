@@ -15,23 +15,23 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           clearInterval(interval);
           setTimeout(() => {
             setIsExiting(true);
-            setTimeout(onComplete, 800);
-          }, 300);
+            setTimeout(onComplete, 600);
+          }, 200);
           return 100;
         }
-        return prev + 2;
+        return prev + 3;
       });
-    }, 30);
+    }, 25);
 
     return () => clearInterval(interval);
   }, [onComplete]);
 
-  const letters = "STUDIO PRANGANA".split("");
+  const letters = "Studio Prangana".split("");
 
   return (
     <div
-      className={`fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center transition-all duration-800 ${
-        isExiting ? "opacity-0 scale-105" : "opacity-100 scale-100"
+      className={`fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center transition-all duration-600 ${
+        isExiting ? "opacity-0" : "opacity-100"
       }`}
     >
       {/* Animated Logo */}
@@ -40,53 +40,33 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           {letters.map((letter, index) => (
             <span
               key={index}
-              className="font-serif text-4xl md:text-6xl tracking-wider"
+              className="font-serif text-3xl md:text-5xl tracking-wider"
               style={{
-                opacity: progress > index * 8 ? 1 : 0,
-                transform: `translateY(${progress > index * 8 ? 0 : 40}px)`,
-                transition: `all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${index * 0.05}s`,
+                opacity: progress > index * 6 ? 1 : 0,
+                transform: `translateY(${progress > index * 6 ? 0 : 30}px)`,
+                transition: `all 0.5s cubic-bezier(0.4, 0, 0.2, 1) ${index * 40}ms`,
                 color: letter === " " ? "transparent" : "hsl(var(--foreground))",
               }}
             >
-              {letter}
+              {letter === " " ? "\u00A0" : letter}
             </span>
           ))}
         </div>
         
-        {/* Decorative line */}
+        {/* Progress line */}
         <div
           className="absolute -bottom-4 left-0 h-px bg-foreground"
           style={{
             width: `${progress}%`,
-            transition: "width 0.3s ease-out",
+            transition: "width 0.2s ease-out",
           }}
         />
       </div>
 
-      {/* Progress indicator */}
+      {/* Progress text */}
       <div className="flex items-center gap-4 text-muted-foreground">
-        <span className="text-label text-xs">Loading</span>
-        <span className="font-serif text-lg tabular-nums">{progress}%</span>
-      </div>
-
-      {/* Floating orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute w-64 h-64 rounded-full bg-gradient-to-br from-stone/10 to-transparent blur-3xl animate-morph"
-          style={{
-            top: "20%",
-            left: "10%",
-            animationDelay: "0s",
-          }}
-        />
-        <div
-          className="absolute w-96 h-96 rounded-full bg-gradient-to-br from-muted/20 to-transparent blur-3xl animate-morph"
-          style={{
-            bottom: "10%",
-            right: "5%",
-            animationDelay: "2s",
-          }}
-        />
+        <span className="text-label text-xs tracking-[0.2em]">Loading</span>
+        <span className="font-serif text-lg tabular-nums w-12">{progress}%</span>
       </div>
     </div>
   );

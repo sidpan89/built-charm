@@ -1,11 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import ScrollReveal from "./ScrollReveal";
-import MagneticButton from "./MagneticButton";
 import { cn } from "@/lib/utils";
 
 const Contact = () => {
   const { toast } = useToast();
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -14,6 +14,23 @@ const Contact = () => {
     message: "",
   });
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,98 +47,126 @@ const Contact = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const inputClasses = (fieldName: string) => cn(
-    "w-full px-0 py-4 bg-transparent border-0 border-b text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-all duration-500",
-    focusedField === fieldName ? "border-foreground" : "border-border"
-  );
-
   return (
-    <section id="contact" className="py-24 lg:py-32 bg-secondary/30 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute w-[500px] h-[500px] rounded-full bg-gradient-to-br from-muted to-transparent blur-3xl top-0 right-0 animate-float" />
-        <div className="absolute w-[300px] h-[300px] rounded-full bg-gradient-to-br from-stone/10 to-transparent blur-3xl bottom-1/4 left-10 animate-morph" style={{ animationDelay: "4s" }} />
-      </div>
-
-      <div className="container mx-auto px-6 lg:px-12 relative">
+    <section
+      id="contact"
+      ref={sectionRef}
+      className="py-24 lg:py-32 bg-background"
+    >
+      <div className="container mx-auto px-6 lg:px-12">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24">
           {/* Left Column - Info */}
           <div>
-            <ScrollReveal>
-              <span className="text-label text-stone mb-4 block tracking-[0.2em]">Contact</span>
-            </ScrollReveal>
-            <ScrollReveal delay={100}>
-              <h2 className="text-display text-4xl md:text-5xl lg:text-6xl text-foreground mb-8">
-                Let's Create
-                <br />
-                Something
-                <br />
-                <span className="text-stone">Together</span>
-              </h2>
-            </ScrollReveal>
-            <ScrollReveal delay={200}>
-              <p className="text-body text-lg text-muted-foreground mb-12 max-w-md">
-                Contact us and let us know about your project, or find out more
-                about our award-winning services.
-              </p>
-            </ScrollReveal>
+            <span
+              className={cn(
+                "text-label text-stone text-xs tracking-[0.3em] mb-4 block transition-all duration-700",
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              )}
+            >
+              Contact
+            </span>
+            <h2
+              className={cn(
+                "font-serif text-4xl md:text-5xl lg:text-6xl text-foreground mb-8 transition-all duration-700 delay-100",
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              )}
+            >
+              Let's Create
+              <br />
+              Something Together
+            </h2>
+            <p
+              className={cn(
+                "text-body text-lg text-muted-foreground mb-12 max-w-md transition-all duration-700 delay-200",
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              )}
+            >
+              Contact us and let us know about your project, or find out more
+              about our services.
+            </p>
 
             <div className="space-y-8">
-              <ScrollReveal delay={300}>
-                <div className="group">
-                  <span className="text-label text-stone mb-2 block text-xs">
-                    Email
-                  </span>
-                  <a
-                    href="mailto:hello@studioprangana.com"
-                    className="text-body text-lg text-foreground inline-flex items-center gap-2 group-hover:gap-4 transition-all duration-300 reveal-line"
+              <div
+                className={cn(
+                  "group transition-all duration-700 delay-300",
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                )}
+              >
+                <span className="text-label text-stone text-xs tracking-[0.15em] mb-2 block">
+                  Email
+                </span>
+                <a
+                  href="mailto:hello@studioprangana.com"
+                  className="text-body text-lg text-foreground inline-flex items-center gap-2 group-hover:gap-4 transition-all duration-300"
+                >
+                  hello@studioprangana.com
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   >
-                    hello@studioprangana.com
-                    <svg width="12" height="12" viewBox="0 0 12 12" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                    </svg>
-                  </a>
-                </div>
-              </ScrollReveal>
-              <ScrollReveal delay={400}>
-                <div className="group">
-                  <span className="text-label text-stone mb-2 block text-xs">
-                    Phone
-                  </span>
-                  <a
-                    href="tel:+442071234567"
-                    className="text-body text-lg text-foreground inline-flex items-center gap-2 group-hover:gap-4 transition-all duration-300 reveal-line"
-                  >
-                    +44 20 7123 4567
-                  </a>
-                </div>
-              </ScrollReveal>
-              <ScrollReveal delay={500}>
-                <div>
-                  <span className="text-label text-stone mb-2 block text-xs">
-                    Studio
-                  </span>
-                  <address className="text-body text-lg text-foreground not-italic">
-                    123 Design Street
-                    <br />
-                    London, EC1A 1BB
-                  </address>
-                </div>
-              </ScrollReveal>
+                    <path
+                      d="M1 11L11 1M11 1H3M11 1V9"
+                      stroke="currentColor"
+                      strokeWidth="1"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fill="none"
+                    />
+                  </svg>
+                </a>
+              </div>
+              <div
+                className={cn(
+                  "group transition-all duration-700 delay-400",
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                )}
+              >
+                <span className="text-label text-stone text-xs tracking-[0.15em] mb-2 block">
+                  Phone
+                </span>
+                <a
+                  href="tel:+919876543210"
+                  className="text-body text-lg text-foreground"
+                >
+                  +91 98765 43210
+                </a>
+              </div>
+              <div
+                className={cn(
+                  "transition-all duration-700 delay-500",
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                )}
+              >
+                <span className="text-label text-stone text-xs tracking-[0.15em] mb-2 block">
+                  Studio
+                </span>
+                <address className="text-body text-lg text-foreground not-italic">
+                  Bangalore, Karnataka
+                  <br />
+                  India
+                </address>
+              </div>
             </div>
           </div>
 
           {/* Right Column - Form */}
-          <ScrollReveal delay={200} direction="right">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+          <div
+            className={cn(
+              "transition-all duration-700 delay-300",
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            )}
+          >
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-8">
                 <div className="relative">
                   <label
                     htmlFor="name"
                     className={cn(
-                      "text-label mb-2 block text-xs absolute left-0 transition-all duration-300",
+                      "text-label text-xs tracking-[0.1em] absolute left-0 transition-all duration-300",
                       focusedField === "name" || formData.name
-                        ? "-top-4 text-stone"
+                        ? "-top-5 text-stone"
                         : "top-4 text-muted-foreground"
                     )}
                   >
@@ -136,20 +181,16 @@ const Contact = () => {
                     onFocus={() => setFocusedField("name")}
                     onBlur={() => setFocusedField(null)}
                     required
-                    className={inputClasses("name")}
+                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-border text-foreground focus:outline-none focus:border-foreground transition-colors duration-300"
                   />
-                  <div className={cn(
-                    "absolute bottom-0 left-0 h-px bg-foreground transition-all duration-500",
-                    focusedField === "name" ? "w-full" : "w-0"
-                  )} />
                 </div>
                 <div className="relative">
                   <label
                     htmlFor="email"
                     className={cn(
-                      "text-label mb-2 block text-xs absolute left-0 transition-all duration-300",
+                      "text-label text-xs tracking-[0.1em] absolute left-0 transition-all duration-300",
                       focusedField === "email" || formData.email
-                        ? "-top-4 text-stone"
+                        ? "-top-5 text-stone"
                         : "top-4 text-muted-foreground"
                     )}
                   >
@@ -164,23 +205,19 @@ const Contact = () => {
                     onFocus={() => setFocusedField("email")}
                     onBlur={() => setFocusedField(null)}
                     required
-                    className={inputClasses("email")}
+                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-border text-foreground focus:outline-none focus:border-foreground transition-colors duration-300"
                   />
-                  <div className={cn(
-                    "absolute bottom-0 left-0 h-px bg-foreground transition-all duration-500",
-                    focusedField === "email" ? "w-full" : "w-0"
-                  )} />
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-2 gap-8">
                 <div className="relative">
                   <label
                     htmlFor="phone"
                     className={cn(
-                      "text-label mb-2 block text-xs absolute left-0 transition-all duration-300",
+                      "text-label text-xs tracking-[0.1em] absolute left-0 transition-all duration-300",
                       focusedField === "phone" || formData.phone
-                        ? "-top-4 text-stone"
+                        ? "-top-5 text-stone"
                         : "top-4 text-muted-foreground"
                     )}
                   >
@@ -194,17 +231,13 @@ const Contact = () => {
                     onChange={handleChange}
                     onFocus={() => setFocusedField("phone")}
                     onBlur={() => setFocusedField(null)}
-                    className={inputClasses("phone")}
+                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-border text-foreground focus:outline-none focus:border-foreground transition-colors duration-300"
                   />
-                  <div className={cn(
-                    "absolute bottom-0 left-0 h-px bg-foreground transition-all duration-500",
-                    focusedField === "phone" ? "w-full" : "w-0"
-                  )} />
                 </div>
                 <div className="relative">
                   <label
                     htmlFor="projectType"
-                    className="text-label text-muted-foreground mb-2 block text-xs absolute left-0 -top-4"
+                    className="text-label text-stone text-xs tracking-[0.1em] absolute left-0 -top-5"
                   >
                     Project Type
                   </label>
@@ -213,9 +246,7 @@ const Contact = () => {
                     name="projectType"
                     value={formData.projectType}
                     onChange={handleChange}
-                    onFocus={() => setFocusedField("projectType")}
-                    onBlur={() => setFocusedField(null)}
-                    className={cn(inputClasses("projectType"), "cursor-pointer pt-6")}
+                    className="w-full px-0 py-4 bg-transparent border-0 border-b border-border text-foreground focus:outline-none focus:border-foreground transition-colors duration-300 cursor-pointer"
                   >
                     <option value="" className="bg-background">Select type</option>
                     <option value="residential" className="bg-background">Residential</option>
@@ -223,10 +254,6 @@ const Contact = () => {
                     <option value="interior" className="bg-background">Interior Design</option>
                     <option value="heritage" className="bg-background">Heritage & Conservation</option>
                   </select>
-                  <div className={cn(
-                    "absolute bottom-0 left-0 h-px bg-foreground transition-all duration-500",
-                    focusedField === "projectType" ? "w-full" : "w-0"
-                  )} />
                 </div>
               </div>
 
@@ -234,9 +261,9 @@ const Contact = () => {
                 <label
                   htmlFor="message"
                   className={cn(
-                    "text-label mb-2 block text-xs absolute left-0 transition-all duration-300",
+                    "text-label text-xs tracking-[0.1em] absolute left-0 transition-all duration-300",
                     focusedField === "message" || formData.message
-                      ? "-top-4 text-stone"
+                      ? "-top-5 text-stone"
                       : "top-4 text-muted-foreground"
                   )}
                 >
@@ -251,30 +278,18 @@ const Contact = () => {
                   onBlur={() => setFocusedField(null)}
                   required
                   rows={4}
-                  className={cn(inputClasses("message"), "resize-none")}
+                  className="w-full px-0 py-4 bg-transparent border-0 border-b border-border text-foreground focus:outline-none focus:border-foreground transition-colors duration-300 resize-none"
                 />
-                <div className={cn(
-                  "absolute bottom-0 left-0 h-px bg-foreground transition-all duration-500",
-                  focusedField === "message" ? "w-full" : "w-0"
-                )} />
               </div>
 
-              <MagneticButton className="mt-8">
-                <button
-                  type="submit"
-                  className="group relative inline-flex items-center justify-center px-8 py-4 text-label bg-foreground text-background overflow-hidden"
-                >
-                  <span className="relative z-10 transition-transform duration-300 group-hover:-translate-y-full group-hover:opacity-0">
-                    Send Message
-                  </span>
-                  <span className="absolute z-10 transition-transform duration-300 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100">
-                    Send Message
-                  </span>
-                  <span className="absolute inset-0 bg-stone scale-x-0 origin-left transition-transform duration-500 group-hover:scale-x-100" />
-                </button>
-              </MagneticButton>
+              <button
+                type="submit"
+                className="group relative inline-flex items-center justify-center px-8 py-4 text-label text-sm tracking-[0.15em] bg-foreground text-background overflow-hidden transition-all duration-300 hover:bg-stone"
+              >
+                <span className="relative z-10">Send Message</span>
+              </button>
             </form>
-          </ScrollReveal>
+          </div>
         </div>
       </div>
     </section>
