@@ -40,7 +40,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   const period = 80;
   const firstDotX = 80;
   const midY = 50;
-  const amplitude = 18;
+  const amplitude = 22; // increased for more pronounced dips
   const phase = Math.PI / 2; // makes x multiples of period troughs (lowest)
 
   const { pathD, dotPositions } = useMemo(() => {
@@ -57,7 +57,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     const yAt = (x: number) => midY + amplitude * Math.sin((2 * Math.PI * x) / period + phase);
 
     const xs = troughXPositions({ firstTroughX: firstDotX, count: menuItems.length, period });
-    const dotGap = 14; // larger gap so dots hover within the dip without touching the line
+    const dotGap = 10; // positions dots nicely within the deeper dips
 
     const dotPositions = xs.map((x, i) => {
       const yLine = yAt(x);
@@ -145,6 +145,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
           const pos = dotPositions[index];
           const isTop = pos.labelPos === "top";
           const dotDelay = 0.9 + index * 0.12;
+          const isActive = activeSection === item.section;
 
           return (
             <div
@@ -162,10 +163,17 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
             >
               <button
                 onClick={() => onNavigate(item.section)}
-                className="relative rounded-full bg-charcoal/70 w-2.5 h-2.5 sm:w-3 sm:h-3 transition-all duration-300 cursor-pointer hover:bg-charcoal hover:scale-125"
+                className={cn(
+                  "relative rounded-full transition-all duration-300 cursor-pointer",
+                  "w-2.5 h-2.5 sm:w-3 sm:h-3",
+                  isActive
+                    ? "bg-charcoal scale-110"
+                    : "bg-charcoal/60 hover:bg-charcoal hover:scale-125"
+                )}
                 style={{
                   animation: isDrawn ? "rangoliDotFloat 3.1s ease-in-out infinite" : "none",
                   animationDelay: `${1.8 + index * 0.1}s`,
+                  boxShadow: isActive ? "0 0 8px 2px hsl(var(--charcoal) / 0.35)" : "none",
                 }}
                 aria-label={item.label}
               />
