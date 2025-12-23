@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import logoIcon from "@/assets/logo-icon.png";
 
 interface HeaderProps {
   className?: string;
@@ -8,7 +7,6 @@ interface HeaderProps {
 
 const Header = ({ className }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,11 +15,6 @@ const Header = ({ className }: HeaderProps) => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 800);
-    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -34,25 +27,7 @@ const Header = ({ className }: HeaderProps) => {
         className
       )}
     >
-      <div className="container mx-auto px-6 lg:px-12 flex items-center justify-start">
-        {/* Logo */}
-        <a
-          href="/"
-          className={cn(
-            "relative z-[60] group transition-all duration-700 flex items-center gap-3",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
-          )}
-        >
-          <img
-            src={logoIcon}
-            alt="Studio Prangana Logo"
-            className="w-10 h-10 object-contain"
-          />
-          <span className="font-serif text-xl tracking-[0.1em] text-foreground">
-            Studio Prangana
-          </span>
-        </a>
-      </div>
+      {/* Empty header - logo moved to hero */}
     </header>
   );
 };
