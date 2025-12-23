@@ -267,79 +267,9 @@ const Hero = ({ onExplore }: HeroProps) => {
         />
       </div>
 
-      {/* Content - Centered toward top */}
-      <div className="relative z-10 container mx-auto px-6 lg:px-12 pt-20 md:pt-28 lg:pt-32 flex flex-col items-center text-center">
-        <div className="max-w-3xl flex flex-col items-center">
-          {/* Logo Image - Centered */}
-          <div
-            className={cn(
-              "mb-6 transition-all duration-1000",
-              isVisible ? "opacity-100 scale-100" : "opacity-0 scale-90"
-            )}
-            style={{ transitionDelay: "300ms" }}
-          >
-            <img
-              src={studioLogo}
-              alt="Studio Prangana Logo"
-              className="w-28 h-28 md:w-36 md:h-36 lg:w-44 lg:h-44 object-contain"
-            />
-          </div>
-
-          {/* Main Heading with Letter Animation - Centered */}
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-charcoal leading-[0.95] tracking-tight mb-8">
-            <span className="inline">
-              {studioName.split("").map((letter, index) => (
-                <span
-                  key={index}
-                  className="inline-block transition-all duration-700"
-                  style={{
-                    opacity: lettersVisible.includes(index) ? 1 : 0,
-                    transform: lettersVisible.includes(index)
-                      ? "translateY(0) rotateX(0)"
-                      : "translateY(100%) rotateX(-90deg)",
-                    transitionDelay: `${index * 30}ms`,
-                    filter: lettersVisible.includes(index) ? "blur(0)" : "blur(4px)",
-                  }}
-                >
-                  {letter === " " ? "\u00A0" : letter}
-                </span>
-              ))}
-            </span>
-          </h1>
-
-          {/* Tagline below name */}
-          <p
-            className={cn(
-              "text-lg md:text-xl lg:text-2xl font-sans font-light text-charcoal/60 leading-relaxed transition-all duration-1000 max-w-2xl",
-              isVisible ? "opacity-100 translate-y-0 blur-0" : "opacity-0 translate-y-8 blur-sm"
-            )}
-            style={{ transitionDelay: "1500ms" }}
-          >
-            {tagline}
-          </p>
-
-          {/* CTA Links */}
-          <div
-            className={cn(
-              "mt-12 flex flex-wrap justify-center gap-8 md:gap-12 transition-all duration-1000",
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            )}
-            style={{ transitionDelay: "2000ms" }}
-          >
-            <button
-              onClick={onExplore}
-              className="group relative text-label text-charcoal text-sm tracking-[0.15em] overflow-hidden"
-            >
-              <span className="relative z-10 inline-block transition-transform duration-300 group-hover:-translate-y-full">
-                Explore Our Work
-              </span>
-              <span className="absolute top-0 left-0 z-10 inline-block translate-y-full transition-transform duration-300 group-hover:translate-y-0">
-                Explore Our Work
-              </span>
-              <span className="absolute bottom-0 left-0 w-full h-px bg-charcoal" />
-            </button>
-          </div>
-        </div>
+      {/* Content removed - clean hero */}
+      <div className="relative z-10 container mx-auto px-6 lg:px-12 h-full flex flex-col items-center justify-center">
+        {/* Empty hero - navigation handles menu */}
       </div>
 
       {/* Corner decorations */}
