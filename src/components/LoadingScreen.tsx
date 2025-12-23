@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import logoIcon from "@/assets/logo-icon.png";
 
 interface LoadingScreenProps {
   onComplete: () => void;
@@ -7,28 +8,34 @@ interface LoadingScreenProps {
 const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
   const [phase, setPhase] = useState<"letters" | "expand" | "exit">("letters");
   const [visibleLetters, setVisibleLetters] = useState<number[]>([]);
+  const [logoVisible, setLogoVisible] = useState(false);
 
   const studioName = "Studio Prangana";
   const letters = studioName.split("");
 
   useEffect(() => {
+    // Show logo first
+    setTimeout(() => {
+      setLogoVisible(true);
+    }, 100);
+
     // Animate letters appearing one by one
     letters.forEach((_, index) => {
       setTimeout(() => {
         setVisibleLetters((prev) => [...prev, index]);
-      }, 150 + index * 100);
+      }, 400 + index * 100);
     });
 
     // After all letters appear, start expand phase
     setTimeout(() => {
       setPhase("expand");
-    }, 150 + letters.length * 100 + 500);
+    }, 400 + letters.length * 100 + 500);
 
     // Exit after expand
     setTimeout(() => {
       setPhase("exit");
       setTimeout(onComplete, 800);
-    }, 150 + letters.length * 100 + 1200);
+    }, 400 + letters.length * 100 + 1200);
   }, [onComplete]);
 
   return (
@@ -76,8 +83,27 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         ))}
       </div>
 
-      {/* Logo */}
-      <div className="relative">
+      {/* Logo and Text */}
+      <div className="relative flex flex-col items-center gap-6">
+        {/* Logo Icon */}
+        <div
+          className="relative"
+          style={{
+            opacity: logoVisible ? 1 : 0,
+            transform: logoVisible
+              ? "translateY(0) scale(1)"
+              : "translateY(30px) scale(0.8)",
+            transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          }}
+        >
+          <img
+            src={logoIcon}
+            alt="Studio Prangana Logo"
+            className="w-16 h-16 md:w-20 md:h-20 object-contain"
+          />
+        </div>
+
+        {/* Text */}
         <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl text-charcoal tracking-[0.1em] overflow-hidden">
           {letters.map((letter, index) => (
             <span
@@ -99,7 +125,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
         {/* Underline reveal */}
         <div
-          className="absolute -bottom-4 left-0 h-px bg-charcoal"
+          className="absolute -bottom-4 left-0 right-0 mx-auto h-px bg-charcoal"
           style={{
             width: phase === "letters" ? "0%" : "100%",
             transition: "width 1s cubic-bezier(0.77, 0, 0.175, 1) 0.5s",
