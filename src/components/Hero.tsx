@@ -268,7 +268,7 @@ const Hero = ({ onExplore }: HeroProps) => {
       </div>
 
       {/* Content - Positioned higher */}
-      <div className="relative z-10 container mx-auto px-6 lg:px-12 pt-8 md:pt-12 lg:pt-16 flex flex-col items-center text-center">
+      <div className="relative z-10 container mx-auto px-6 lg:px-12 pt-4 md:pt-6 lg:pt-8 flex flex-col items-center text-center">
         <div className="max-w-3xl flex flex-col items-center">
           {/* Logo Image - Centered */}
           <div
