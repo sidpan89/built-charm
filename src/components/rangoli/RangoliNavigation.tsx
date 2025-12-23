@@ -32,20 +32,15 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     return () => window.clearTimeout(t);
   }, []);
 
-  // Full-width wave spanning the page
-  const W = 1200; // wider viewBox for full-page coverage
-  const H = 80;
+  const W = 480;
+  const H = 110;
 
-  // 6 dots in consecutive dips (no gaps)
-  const numDots = menuItems.length;
-  const period = 60; // tighter period for consecutive dips
-  const amplitude = 18;
-  const midY = 40;
-  const phase = Math.PI / 2; // troughs at period intervals
-
-  // Center the dots within the wave
-  const totalDotsWidth = (numDots - 1) * period;
-  const firstDotX = (W - totalDotsWidth) / 2;
+  // Uniform wave sized to fit exactly 6 consecutive dips (no unused dips)
+  const period = 80;
+  const firstDotX = 40; // first dip position
+  const midY = 55;
+  const amplitude = 22;
+  const phase = -Math.PI / 2; // makes dips (lowest) at x = firstDotX + n*period
 
   const { pathD, dotPositions } = useMemo(() => {
     const pathD = buildSineWavePath({
@@ -55,26 +50,27 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
       amplitude,
       period,
       phase,
-      stepPx: 2,
+      stepPx: 3,
     });
 
     const yAt = (x: number) => midY + amplitude * Math.sin((2 * Math.PI * x) / period + phase);
 
-    const xs = troughXPositions({ firstTroughX: firstDotX, count: numDots, period });
-    const dotGap = 14; // dots float within the dip
+    const xs = troughXPositions({ firstTroughX: firstDotX, count: menuItems.length, period });
+    const dotGap = 14; // hover within dip, not touching the line
 
     const dotPositions = xs.map((x, i) => {
       const yLine = yAt(x);
       return {
         x,
         yLine,
+        // In a dip (lower on screen): place dot slightly above the line
         yDot: yLine - dotGap,
         labelPos: i % 2 === 0 ? ("top" as const) : ("bottom" as const),
       };
     });
 
     return { pathD, dotPositions };
-  }, [numDots, firstDotX]);
+  }, [menuItems.length]);
 
   const accentDots = useMemo(
     () =>
@@ -92,17 +88,17 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   return (
     <div
       className={cn(
-        "fixed bottom-5 sm:bottom-8 left-0 right-0 z-50 transition-all duration-700",
+        "fixed bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-700",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       )}
       aria-label="Section navigation"
     >
-      {/* Full-width container */}
-      <div className="relative w-full h-16 sm:h-20">
+      {/* Sized only to fit the 6-menu rangoli */}
+      <div className="relative w-[min(480px,92vw)] aspect-[480/110]">
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
           viewBox={`0 0 ${W} ${H}`}
-          preserveAspectRatio="none"
+          preserveAspectRatio="xMidYMid meet"
         >
           {/* Wave line (uniform) */}
           <path
