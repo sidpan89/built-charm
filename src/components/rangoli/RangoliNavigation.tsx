@@ -57,14 +57,14 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     const yAt = (x: number) => midY + amplitude * Math.sin((2 * Math.PI * x) / period + phase);
 
     const xs = troughXPositions({ firstTroughX: firstDotX, count: menuItems.length, period });
-    const dotGap = 8; // keeps dots inside the dip without touching the line
+    const dotGap = 14; // larger gap so dots hover within the dip without touching the line
 
     const dotPositions = xs.map((x, i) => {
       const yLine = yAt(x);
       return {
         x,
         yLine,
-        // Place dot ABOVE the trough line (lower y in SVG) so it sits inside the dip
+        // Place dot ABOVE the trough line (lower y in SVG) so it hovers within the dip
         yDot: yLine - dotGap,
         labelPos: i % 2 === 0 ? ("top" as const) : ("bottom" as const),
       };
@@ -162,27 +162,13 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
             >
               <button
                 onClick={() => onNavigate(item.section)}
-                className={cn(
-                  "relative rounded-full transition-all duration-300 cursor-pointer",
-                  // mobile-friendly sizing
-                  activeSection === item.section
-                    ? "bg-primary w-3.5 h-3.5 sm:w-4 sm:h-4"
-                    : "bg-charcoal/70 w-2.5 h-2.5 sm:w-3 sm:h-3 hover:bg-charcoal hover:w-3.5 hover:h-3.5 sm:hover:w-4 sm:hover:h-4"
-                )}
+                className="relative rounded-full bg-charcoal/70 w-2.5 h-2.5 sm:w-3 sm:h-3 transition-all duration-300 cursor-pointer hover:bg-charcoal hover:scale-125"
                 style={{
-                  animation: isDrawn
-                    ? activeSection === item.section
-                      ? "rangoliActiveGlow 2.2s ease-in-out infinite"
-                      : "rangoliDotFloat 3.1s ease-in-out infinite"
-                    : "none",
+                  animation: isDrawn ? "rangoliDotFloat 3.1s ease-in-out infinite" : "none",
                   animationDelay: `${1.8 + index * 0.1}s`,
                 }}
                 aria-label={item.label}
-              >
-                {activeSection === item.section && (
-                  <span className="absolute inset-[-3px] sm:inset-[-4px] rounded-full border border-primary/40 animate-ping" />
-                )}
-              </button>
+              />
 
               <span
                 className={cn(
