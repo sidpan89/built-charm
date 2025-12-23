@@ -42,31 +42,28 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   const H = 70;
   const numDots = menuItems.length;
 
-  // Wave geometry - dots inside every trough (consecutive)
-  const dotSpacing = 70; // horizontal distance between dots = one full wavelength
-  const amplitude = 18; // wave amplitude
+  // Wave geometry
+  // - Dots alternate between bottom troughs (cup opens upward) and top troughs (cup opens downward)
+  // - One dot per extremum => no trough/peak is left blank
+  const dotSpacing = 70; // spacing between consecutive extrema (half-wavelength)
+  const amplitude = 18;
   const dotRadius = 4;
-  const gap = 5; // gap between dot bottom and trough line
+  const gap = 6; // 5-10px clearance between wave and dot
 
-  const { pathD, dotPositions, troughY } = useMemo(() => {
+  const { pathD, dotPositions, troughY, peakY } = useMemo(() => {
     const totalWidth = (numDots - 1) * dotSpacing;
     const startX = (W - totalWidth) / 2;
-    
-    // Each dot sits in its own trough - wavelength equals dot spacing
-    // This means every trough has a dot (consecutive)
-    const wavelength = dotSpacing;
-    
-    // Wave geometry:
-    // - Trough (bottom, high Y) at x = startX + n*wavelength where dots are
-    // - Peak (top, low Y) at x = startX + wavelength/2 + n*wavelength (between dots)
-    
-    const peakY = 10; // top of wave curve
-    const troughY = peakY + 2 * amplitude; // bottom of wave curve
+
+    // Full wavelength is 2 * dotSpacing so extrema occur every dotSpacing
+    const wavelength = dotSpacing * 2;
+
+    const peakY = 10;
+    const troughY = peakY + 2 * amplitude;
     const centerY = (peakY + troughY) / 2;
-    
+
     const yAt = (x: number) => {
       const theta = (2 * Math.PI * (x - startX)) / wavelength;
-      // cos(0) = 1 → trough at dot positions
+      // theta=0 => trough (bottom); theta=π => peak (top)
       return centerY + amplitude * Math.cos(theta);
     };
 
@@ -78,32 +75,32 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     }
     const pathD = points.join(" ");
 
-    // Dots positioned ABOVE the trough line, floating inside the cup
-    // Dot bottom edge should be 'gap' pixels above the trough
-    // Dot center Y = troughY - gap - dotRadius
-    const dotCenterY = troughY - gap - dotRadius;
+    // Dot placement:
+    // - Even index dots sit INSIDE bottom troughs (float above the trough line)
+    // - Odd index dots sit INSIDE top troughs/peaks (float below the peak line)
+    const dotPositions = Array.from({ length: numDots }, (_, i) => {
+      const x = startX + i * dotSpacing;
+      const isBottomCup = i % 2 === 0;
+      const y = isBottomCup
+        ? troughY - gap - dotRadius // above bottom trough
+        : peakY + gap + dotRadius; // below top peak
 
-    const dotPositions = Array.from({ length: numDots }, (_, i) => ({
-      x: startX + i * wavelength,
-      y: dotCenterY,
-    }));
+      return { x, y };
+    });
 
-    return { pathD, dotPositions, troughY };
+    return { pathD, dotPositions, troughY, peakY };
   }, [numDots, dotSpacing, amplitude, dotRadius, gap, W]);
+
 
   return (
     <div
       className={cn(
         "fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-50",
+        "bg-cream shadow-subtle rounded-xl",
+        "px-6 py-2.5",
         "transition-all duration-500",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       )}
-      style={{ 
-        background: "#F9F9F7", 
-        borderRadius: "12px", 
-        padding: "10px 24px",
-        boxShadow: "0 2px 20px rgba(0,0,0,0.04)"
-      }}
       aria-label="Section navigation"
     >
       <div
@@ -130,6 +127,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
           activeSection={activeSection}
           onNavigate={onNavigate}
           troughY={troughY}
+          peakY={peakY}
           dotRadius={dotRadius}
         />
       </div>

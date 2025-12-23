@@ -19,6 +19,7 @@ interface MenuDotsProps {
   activeSection: string;
   onNavigate: (section: string) => void;
   troughY: number;
+  peakY: number;
   dotRadius: number;
 }
 
@@ -31,6 +32,7 @@ const MenuDots = ({
   activeSection,
   onNavigate,
   troughY,
+  peakY,
   dotRadius,
 }: MenuDotsProps) => {
   const [hoveredDot, setHoveredDot] = useState<number | null>(null);
@@ -66,7 +68,7 @@ const MenuDots = ({
                   left: "50%",
                   top: "50%",
                   transform: "translate(-50%, -50%)",
-                  background: "radial-gradient(circle, rgba(45, 45, 45, 0.25) 0%, transparent 70%)",
+                  background: "radial-gradient(circle, hsl(var(--charcoal) / 0.22) 0%, transparent 70%)",
                   animation: "glowPulse 2s ease-in-out infinite",
                 }}
               />
@@ -79,8 +81,8 @@ const MenuDots = ({
               style={{
                 width: `${dotRadius * 2}px`,
                 height: `${dotRadius * 2}px`,
-                backgroundColor: isActive ? "#1a1a1a" : "#2D2D2D",
-                boxShadow: isActive ? "0 0 8px rgba(26, 26, 26, 0.4)" : "none",
+                backgroundColor: isActive ? "hsl(var(--foreground))" : "hsl(var(--charcoal))",
+                boxShadow: isActive ? "0 0 10px hsl(var(--charcoal) / 0.35)" : "none",
                 opacity: dotsVisible ? 1 : 0,
                 transform: dotsVisible
                   ? `scale(${isHovered ? 1.25 : isActive ? 1.15 : 1})`
@@ -95,19 +97,19 @@ const MenuDots = ({
               aria-label={item.label}
             />
 
-            {/* Label - appears above the wave on hover */}
+            {/* Label - appears away from the wave depending on dot position */}
             <span
               className="absolute left-1/2 whitespace-nowrap pointer-events-none"
               style={{
-                top: `-28px`,
+                top: pos.y < (troughY + peakY) / 2 ? "14px" : "-28px",
                 fontSize: "9px",
                 letterSpacing: "0.18em",
                 fontWeight: 500,
-                color: "#2D2D2D",
+                color: "hsl(var(--charcoal))",
                 opacity: isHovered ? 1 : 0,
                 transform: `translateX(-50%) translateY(${isHovered ? 0 : 5}px)`,
                 transition: "opacity 200ms ease, transform 200ms ease",
-                fontFamily: "system-ui, sans-serif",
+                fontFamily: "var(--font-sans)",
               }}
             >
               {item.label}
