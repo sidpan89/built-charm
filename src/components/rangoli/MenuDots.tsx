@@ -56,6 +56,22 @@ const MenuDots = ({
             onMouseEnter={() => setHoveredDot(index)}
             onMouseLeave={() => setHoveredDot(null)}
           >
+            {/* Active glow effect */}
+            {isActive && dotsVisible && (
+              <div
+                className="absolute rounded-full pointer-events-none"
+                style={{
+                  width: `${dotRadius * 4}px`,
+                  height: `${dotRadius * 4}px`,
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-50%, -50%)",
+                  background: "radial-gradient(circle, rgba(45, 45, 45, 0.25) 0%, transparent 70%)",
+                  animation: "glowPulse 2s ease-in-out infinite",
+                }}
+              />
+            )}
+
             {/* Dot - darker than line, solid circle */}
             <button
               onClick={() => onNavigate(item.section)}
@@ -64,6 +80,7 @@ const MenuDots = ({
                 width: `${dotRadius * 2}px`,
                 height: `${dotRadius * 2}px`,
                 backgroundColor: isActive ? "#1a1a1a" : "#2D2D2D",
+                boxShadow: isActive ? "0 0 8px rgba(26, 26, 26, 0.4)" : "none",
                 opacity: dotsVisible ? 1 : 0,
                 transform: dotsVisible
                   ? `scale(${isHovered ? 1.25 : isActive ? 1.15 : 1})`
@@ -71,7 +88,8 @@ const MenuDots = ({
                 transition: `
                   opacity 400ms ease ${staggerDelay}s,
                   transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1) ${dotsVisible ? staggerDelay : 0}s,
-                  background-color 150ms ease
+                  background-color 150ms ease,
+                  box-shadow 300ms ease
                 `,
               }}
               aria-label={item.label}
@@ -97,6 +115,12 @@ const MenuDots = ({
           </div>
         );
       })}
+      <style>{`
+        @keyframes glowPulse {
+          0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+        }
+      `}</style>
     </>
   );
 };
