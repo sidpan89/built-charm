@@ -28,7 +28,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   useEffect(() => {
     const t1 = window.setTimeout(() => setIsVisible(true), 500);
     const t2 = window.setTimeout(() => setWaveDrawn(true), 600);
-    const t3 = window.setTimeout(() => setDotsVisible(true), 1800);
+    const t3 = window.setTimeout(() => setDotsVisible(true), 1900);
     
     return () => {
       window.clearTimeout(t1);
@@ -38,57 +38,47 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   }, []);
 
   // Canvas dimensions
-  const W = 480;
-  const H = 80;
+  const W = 520;
+  const H = 70;
   const numDots = menuItems.length;
 
-  // Wave geometry parameters
-  const dotSpacing = 70; // horizontal distance between dots
-  const amplitude = 14; // wave amplitude (half the peak-to-trough distance)
-  const dotRadius = 5;
-  const gap = 7; // 5-10px gap between wave bottom and dot top
+  // Wave geometry - matches Studio Prangana reference
+  const dotSpacing = 75; // horizontal distance between dots
+  const amplitude = 16; // wave amplitude
+  const dotRadius = 4;
+  const gap = 6; // gap between wave trough and dot top
 
-  const { pathD, dotPositions, waveBottomY } = useMemo(() => {
+  const { pathD, dotPositions, troughY } = useMemo(() => {
     const totalWidth = (numDots - 1) * dotSpacing;
     const startX = (W - totalWidth) / 2;
     const wavelength = dotSpacing;
     
-    // Wave parameters:
-    // - The wave oscillates between peakY (top) and troughY (bottom)
-    // - We want TROUGHS (bottom of wave) aligned with dot X positions
-    // - Dots sit BELOW the troughs with a gap
-    
-    const peakY = 15; // top of wave (peaks)
-    const troughY = peakY + 2 * amplitude; // bottom of wave (troughs)
-    
-    // Wave equation: y = centerY + amplitude * cos(theta)
-    // At theta = 0: y = centerY + amplitude (trough - we invert since Y increases downward)
-    // At theta = π: y = centerY - amplitude (peak)
+    // Wave geometry:
+    // - Peak (top of wave, low Y value) at x = startX + wavelength/2, startX + 3*wavelength/2, etc.
+    // - Trough (bottom of wave, high Y value) at x = startX, startX + wavelength, etc.
     // 
-    // To place TROUGH at x = startX + n*wavelength:
-    // cos(theta) = 1 when theta = 0, 2π, 4π...
-    // So theta = 2π * (x - startX) / wavelength
-    // This puts trough at x = startX, startX + wavelength, etc.
+    // Using cosine: y = centerY + amplitude * cos(theta)
+    // When theta = 0: cos(0) = 1 → y is at maximum (trough, since Y increases downward)
+    // When theta = π: cos(π) = -1 → y is at minimum (peak)
     
+    const peakY = 12; // top of wave curve
+    const troughY = peakY + 2 * amplitude; // bottom of wave curve
     const centerY = (peakY + troughY) / 2;
     
     const yAt = (x: number) => {
       const theta = (2 * Math.PI * (x - startX)) / wavelength;
-      // cos(0) = 1 → trough (high Y), cos(π) = -1 → peak (low Y)
       return centerY + amplitude * Math.cos(theta);
     };
 
-    // Generate smooth wave path
-    const step = 1;
+    // Generate smooth sine wave path
     const points: string[] = [];
-    for (let x = 0; x <= W; x += step) {
+    for (let x = 0; x <= W; x++) {
       const y = yAt(x);
       points.push(x === 0 ? `M ${x} ${y.toFixed(2)}` : `L ${x} ${y.toFixed(2)}`);
     }
     const pathD = points.join(" ");
 
-    // Dot positions: X at trough positions, Y below trough with gap
-    // Dot top edge = troughY + gap
+    // Dots positioned below troughs with gap
     // Dot center Y = troughY + gap + dotRadius
     const dotCenterY = troughY + gap + dotRadius;
 
@@ -97,7 +87,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
       y: dotCenterY,
     }));
 
-    return { pathD, dotPositions, waveBottomY: troughY };
+    return { pathD, dotPositions, troughY };
   }, [numDots, dotSpacing, amplitude, dotRadius, gap, W]);
 
   return (
@@ -107,13 +97,18 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
         "transition-all duration-500",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       )}
-      style={{ background: "#F9F9F7", borderRadius: "8px", padding: "8px 16px" }}
+      style={{ 
+        background: "#F9F9F7", 
+        borderRadius: "12px", 
+        padding: "10px 24px",
+        boxShadow: "0 2px 20px rgba(0,0,0,0.04)"
+      }}
       aria-label="Section navigation"
     >
       <div
         className="relative"
         style={{
-          width: `min(${W}px, 94vw)`,
+          width: `min(${W}px, 92vw)`,
           height: `${H}px`,
         }}
       >
@@ -133,7 +128,8 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
           dotsVisible={dotsVisible}
           activeSection={activeSection}
           onNavigate={onNavigate}
-          waveBottomY={waveBottomY}
+          troughY={troughY}
+          dotRadius={dotRadius}
         />
       </div>
     </div>
