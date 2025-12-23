@@ -24,90 +24,129 @@ const DotNavigation = ({ onNavigate, activeSection }: DotNavigationProps) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Calculate dot positions - dots sit in the valleys (dips) of the wave
-  // Wave has 5 complete dips for 6 menu items
-  const getDotPosition = (index: number) => {
-    // Dots are positioned at the bottom of each wave dip
-    // The wave goes: up, down, up, down, up, down
-    // Dots alternate between being below (in dip) and above with small decorations
-    const xOffset = index * 100; // Horizontal spacing
-    return xOffset;
-  };
+  // Dot positions matching the reference - dots are in the valleys/dips, not touching the line
+  // Pattern: dot above valley, dot below valley, alternating
+  const dotPositions = [
+    { x: 80, y: 18, labelPos: "top" },    // Above first dip
+    { x: 160, y: 62, labelPos: "bottom" }, // Below second dip
+    { x: 240, y: 18, labelPos: "top" },    // Above third dip
+    { x: 320, y: 62, labelPos: "bottom" }, // Below fourth dip
+    { x: 400, y: 18, labelPos: "top" },    // Above fifth dip
+    { x: 480, y: 62, labelPos: "bottom" }, // Below sixth dip
+  ];
+
+  // Decorative accent dots (small dots scattered around like in the reference)
+  const accentDots = [
+    { x: 55, y: 35, size: 4 },
+    { x: 120, y: 28, size: 3 },
+    { x: 135, y: 48, size: 5 },
+    { x: 200, y: 55, size: 3 },
+    { x: 280, y: 32, size: 4 },
+    { x: 295, y: 52, size: 3 },
+    { x: 360, y: 28, size: 5 },
+    { x: 375, y: 48, size: 3 },
+    { x: 440, y: 55, size: 4 },
+    { x: 505, y: 35, size: 3 },
+  ];
 
   return (
     <div
       className={cn(
-        "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-700",
+        "fixed bottom-12 left-1/2 -translate-x-1/2 z-50 transition-all duration-700",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       )}
     >
       {/* Container for wave and dots */}
-      <div className="relative w-[600px] h-[80px]">
-        {/* SVG Wave line */}
+      <div className="relative w-[560px] h-[100px]">
+        {/* SVG Wave line - hand-drawn organic style */}
         <svg
           className="absolute top-0 left-0 w-full h-full pointer-events-none"
-          viewBox="0 0 600 80"
+          viewBox="0 0 560 100"
           preserveAspectRatio="xMidYMid meet"
         >
-          {/* Main wave path - goes through peaks and valleys */}
+          {/* Animated wave path - organic hand-drawn style matching reference */}
           <path
-            d="M0,40 
-               Q50,15 100,40 
-               Q150,65 200,40 
-               Q250,15 300,40 
-               Q350,65 400,40 
-               Q450,15 500,40 
-               Q550,65 600,40"
+            d="M0,50 
+               C20,50 40,30 80,30 
+               C120,30 120,70 160,70 
+               C200,70 200,30 240,30 
+               C280,30 280,70 320,70 
+               C360,70 360,30 400,30 
+               C440,30 440,70 480,70 
+               C520,70 540,50 560,50"
             fill="none"
             stroke="hsl(var(--charcoal))"
-            strokeWidth="2"
+            strokeWidth="2.5"
             strokeLinecap="round"
-            className="opacity-40"
+            className="opacity-50"
+            style={{
+              animation: "waveFlow 8s ease-in-out infinite",
+            }}
           />
         </svg>
 
-        {/* Navigation dots - positioned in the valleys (dips) */}
+        {/* Decorative accent dots - scattered around like rangoli */}
+        {accentDots.map((dot, index) => (
+          <div
+            key={`accent-${index}`}
+            className="absolute rounded-full bg-charcoal/30"
+            style={{
+              left: `${(dot.x / 560) * 100}%`,
+              top: `${dot.y}px`,
+              width: `${dot.size}px`,
+              height: `${dot.size}px`,
+              transform: "translate(-50%, -50%)",
+              animation: `dotPulse ${2 + index * 0.3}s ease-in-out infinite`,
+              animationDelay: `${index * 0.2}s`,
+            }}
+          />
+        ))}
+
+        {/* Main navigation dots - positioned in the valleys */}
         {menuItems.map((item, index) => {
-          // Dots are at x positions: 100, 200, 300, 400, 500, 600 (at the curve transitions)
-          // Alternating between top (y=15) and bottom (y=65) of wave
-          const xPos = 100 + index * 83.33; // Spread across 500px (from 100 to 600)
-          const isInUpperDip = index % 2 === 0; // Even indices: upper curve, odd: lower curve
-          const yPos = isInUpperDip ? 20 : 55; // Position in the dip/valley
+          const pos = dotPositions[index];
+          const isTop = pos.labelPos === "top";
 
           return (
             <div
               key={item.section}
               className="absolute"
               style={{
-                left: `${(xPos / 600) * 100}%`,
-                top: `${yPos}px`,
+                left: `${(pos.x / 560) * 100}%`,
+                top: `${pos.y}px`,
                 transform: "translate(-50%, -50%)",
               }}
               onMouseEnter={() => setHoveredDot(index)}
               onMouseLeave={() => setHoveredDot(null)}
             >
-              {/* Main dot */}
+              {/* Main navigation dot */}
               <button
                 onClick={() => onNavigate(item.section)}
                 className={cn(
-                  "relative w-3 h-3 rounded-full transition-all duration-300 cursor-pointer",
+                  "relative rounded-full transition-all duration-300 cursor-pointer",
                   activeSection === item.section
-                    ? "bg-primary scale-150"
-                    : "bg-charcoal/60 hover:bg-charcoal hover:scale-125"
+                    ? "bg-primary w-4 h-4"
+                    : "bg-charcoal/70 w-3 h-3 hover:bg-charcoal hover:w-4 hover:h-4"
                 )}
+                style={{
+                  animation: activeSection === item.section 
+                    ? "activeDotGlow 2s ease-in-out infinite" 
+                    : "dotFloat 3s ease-in-out infinite",
+                  animationDelay: `${index * 0.15}s`,
+                }}
                 aria-label={item.label}
               >
                 {/* Pulse ring for active */}
                 {activeSection === item.section && (
-                  <span className="absolute inset-0 rounded-full bg-primary/30 animate-ping" />
+                  <span className="absolute inset-[-4px] rounded-full border border-primary/40 animate-ping" />
                 )}
               </button>
 
-              {/* Label on hover - appears above or below based on dot position */}
+              {/* Label on hover */}
               <span
                 className={cn(
-                  "absolute left-1/2 -translate-x-1/2 whitespace-nowrap font-sans text-xs tracking-[0.15em] uppercase transition-all duration-300 pointer-events-none",
-                  isInUpperDip ? "-top-8" : "top-6",
+                  "absolute left-1/2 -translate-x-1/2 whitespace-nowrap font-sans text-xs tracking-[0.2em] uppercase transition-all duration-300 pointer-events-none font-medium",
+                  isTop ? "-top-7" : "top-7",
                   hoveredDot === index
                     ? "opacity-100 scale-100"
                     : "opacity-0 scale-90"
@@ -115,36 +154,53 @@ const DotNavigation = ({ onNavigate, activeSection }: DotNavigationProps) => {
               >
                 {item.label}
               </span>
-
-              {/* Small decorative accent dots */}
-              {index % 2 === 1 && (
-                <span
-                  className={cn(
-                    "absolute w-1.5 h-1.5 rounded-full bg-charcoal/25 transition-all duration-300",
-                    isInUpperDip ? "top-4 -left-2" : "-top-3 left-3"
-                  )}
-                  style={{
-                    transform: hoveredDot === index ? "scale(1.5)" : "scale(1)",
-                    opacity: hoveredDot === index ? 0.6 : 0.3,
-                  }}
-                />
-              )}
-              {index % 3 === 0 && (
-                <span
-                  className={cn(
-                    "absolute w-1 h-1 rounded-full bg-charcoal/20 transition-all duration-300",
-                    isInUpperDip ? "-top-2 left-4" : "top-5 -left-3"
-                  )}
-                  style={{
-                    transform: hoveredDot === index ? "scale(2)" : "scale(1)",
-                    opacity: hoveredDot === index ? 0.5 : 0.2,
-                  }}
-                />
-              )}
             </div>
           );
         })}
       </div>
+
+      {/* Rangoli-style animations */}
+      <style>{`
+        @keyframes waveFlow {
+          0%, 100% {
+            transform: translateX(0);
+            opacity: 0.5;
+          }
+          50% {
+            transform: translateX(2px);
+            opacity: 0.6;
+          }
+        }
+        
+        @keyframes dotFloat {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-2px);
+          }
+        }
+        
+        @keyframes dotPulse {
+          0%, 100% {
+            opacity: 0.3;
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% {
+            opacity: 0.5;
+            transform: translate(-50%, -50%) scale(1.2);
+          }
+        }
+        
+        @keyframes activeDotGlow {
+          0%, 100% {
+            box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+          }
+          50% {
+            box-shadow: 0 0 8px 2px hsl(var(--primary) / 0.3);
+          }
+        }
+      `}</style>
     </div>
   );
 };
