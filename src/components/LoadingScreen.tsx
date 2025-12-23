@@ -8,22 +8,16 @@ interface LoadingScreenProps {
 const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
   const [phase, setPhase] = useState<"letters" | "expand" | "exit">("letters");
   const [visibleLetters, setVisibleLetters] = useState<number[]>([]);
-  const [logoVisible, setLogoVisible] = useState(false);
 
   const studioName = "Studio Prangana";
   const letters = studioName.split("");
 
   useEffect(() => {
-    // Show logo first
-    setTimeout(() => {
-      setLogoVisible(true);
-    }, 100);
-
     // Animate letters appearing one by one
     letters.forEach((_, index) => {
       setTimeout(() => {
         setVisibleLetters((prev) => [...prev, index]);
-      }, 400 + index * 100);
+      }, 300 + index * 100);
     });
 
     // After all letters appear, start expand phase
@@ -84,24 +78,22 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       </div>
 
       {/* Logo and Text */}
-      <div className="relative flex flex-col items-center gap-6">
+      <div
+        className="relative flex items-center gap-4"
+        style={{
+          opacity: visibleLetters.length > 0 ? 1 : 0,
+          transform: visibleLetters.length > 0
+            ? "translateY(0) scale(1)"
+            : "translateY(40px) scale(0.9)",
+          transition: "all 1s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        }}
+      >
         {/* Logo Icon */}
-        <div
-          className="relative"
-          style={{
-            opacity: logoVisible ? 1 : 0,
-            transform: logoVisible
-              ? "translateY(0) scale(1)"
-              : "translateY(30px) scale(0.8)",
-            transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
-          }}
-        >
-          <img
-            src={logoIcon}
-            alt="Studio Prangana Logo"
-            className="w-16 h-16 md:w-20 md:h-20 object-contain"
-          />
-        </div>
+        <img
+          src={logoIcon}
+          alt="Studio Prangana Logo"
+          className="w-12 h-12 md:w-16 md:h-16 object-contain"
+        />
 
         {/* Text */}
         <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl text-charcoal tracking-[0.1em] overflow-hidden">
@@ -122,25 +114,6 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
             </span>
           ))}
         </h1>
-
-        {/* Underline reveal */}
-        <div
-          className="absolute -bottom-4 left-0 right-0 mx-auto h-px bg-charcoal"
-          style={{
-            width: phase === "letters" ? "0%" : "100%",
-            transition: "width 1s cubic-bezier(0.77, 0, 0.175, 1) 0.5s",
-          }}
-        />
-
-        {/* Expanding circle effect */}
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-charcoal/5"
-          style={{
-            width: phase === "expand" || phase === "exit" ? "300vw" : "0",
-            height: phase === "expand" || phase === "exit" ? "300vw" : "0",
-            transition: "all 1.2s cubic-bezier(0.77, 0, 0.175, 1)",
-          }}
-        />
       </div>
 
       {/* Corner decorations */}
