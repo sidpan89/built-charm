@@ -32,16 +32,19 @@ const MenuDots = ({
 }: MenuDotsProps) => {
   const [hoveredDot, setHoveredDot] = useState<number | null>(null);
 
-  // Find center index for sequential animation from center outward
-  const centerIndex = Math.floor(menuItems.length / 2);
+  // Calculate order: center dots first, then outward
+  // For 6 items: indices 2,3 first, then 1,4, then 0,5
+  const getSequentialDelay = (index: number, total: number) => {
+    const center = (total - 1) / 2;
+    const distanceFromCenter = Math.abs(index - center);
+    return distanceFromCenter * 0.15; // 150ms between each "ring"
+  };
 
   return (
     <>
       {menuItems.map((item, index) => {
         const pos = dotPositions[index];
-        // Calculate delay based on distance from center
-        const distanceFromCenter = Math.abs(index - centerIndex + 0.5);
-        const dotDelay = 0.1 + distanceFromCenter * 0.12;
+        const sequentialDelay = getSequentialDelay(index, menuItems.length);
         
         const isActive = activeSection === item.section;
         const isHovered = hoveredDot === index;
@@ -54,8 +57,6 @@ const MenuDots = ({
               left: `${(pos.x / viewBoxWidth) * 100}%`,
               top: `${(pos.y / viewBoxHeight) * 100}%`,
               transform: "translate(-50%, -50%)",
-              opacity: isDrawn ? 1 : 0,
-              transition: `opacity 400ms ease ${dotDelay}s, transform 400ms ease ${dotDelay}s`,
             }}
             onMouseEnter={() => setHoveredDot(index)}
             onMouseLeave={() => setHoveredDot(null)}
@@ -63,14 +64,14 @@ const MenuDots = ({
             {/* Glow ring for active dot */}
             {isActive && (
               <div
-                className="absolute inset-0 rounded-full animate-active-glow"
+                className="absolute rounded-full animate-active-glow"
                 style={{
-                  width: "20px",
-                  height: "20px",
+                  width: "24px",
+                  height: "24px",
                   left: "50%",
                   top: "50%",
                   transform: "translate(-50%, -50%)",
-                  background: "radial-gradient(circle, hsl(var(--charcoal) / 0.3) 0%, transparent 70%)",
+                  background: "radial-gradient(circle, hsl(var(--charcoal) / 0.25) 0%, transparent 70%)",
                 }}
               />
             )}
@@ -78,17 +79,22 @@ const MenuDots = ({
             <button
               onClick={() => onNavigate(item.section)}
               className={cn(
-                "relative rounded-full transition-all duration-300 ease-out cursor-pointer",
+                "relative rounded-full cursor-pointer dot-fade-in",
                 "w-2 h-2 sm:w-2.5 sm:h-2.5",
                 isActive
-                  ? "bg-charcoal scale-125"
+                  ? "bg-charcoal"
                   : isHovered
-                  ? "bg-charcoal scale-125"
+                  ? "bg-charcoal"
                   : "bg-charcoal/80 hover:bg-charcoal"
               )}
               style={{
+                opacity: isDrawn ? 1 : 0,
+                transform: isDrawn 
+                  ? `scale(${isActive || isHovered ? 1.3 : 1})` 
+                  : "scale(0.5)",
+                transition: `opacity 400ms ease ${sequentialDelay}s, transform 400ms ease ${sequentialDelay}s`,
                 boxShadow: isActive
-                  ? "0 0 12px 4px hsl(var(--charcoal) / 0.35)"
+                  ? "0 0 12px 4px hsl(var(--charcoal) / 0.3)"
                   : "none",
               }}
               aria-label={item.label}
@@ -113,16 +119,16 @@ const MenuDots = ({
       <style>{`
         @keyframes activeGlow {
           0%, 100% {
-            opacity: 0.6;
+            opacity: 0.5;
             transform: translate(-50%, -50%) scale(1);
           }
           50% {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1.3);
+            opacity: 0.8;
+            transform: translate(-50%, -50%) scale(1.4);
           }
         }
         .animate-active-glow {
-          animation: activeGlow 2s ease-in-out infinite;
+          animation: activeGlow 2.5s ease-in-out infinite;
         }
       `}</style>
     </>

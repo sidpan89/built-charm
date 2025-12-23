@@ -11,7 +11,7 @@ interface RangoliNavigationProps {
 
 const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [isDrawn, setIsDrawn] = useState(false);
+  const [waveDrawn, setWaveDrawn] = useState(false);
   const [dotsVisible, setDotsVisible] = useState(false);
 
   const menuItems = useMemo(
@@ -27,14 +27,24 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   );
 
   useEffect(() => {
+    // Sequence: fade in container -> draw wave from center -> show dots sequentially
     const t1 = window.setTimeout(() => {
       setIsVisible(true);
-      // Start wave drawing from center
-      window.setTimeout(() => setIsDrawn(true), 100);
-      // Show dots after wave is drawn
-      window.setTimeout(() => setDotsVisible(true), 600);
     }, 800);
-    return () => window.clearTimeout(t1);
+    
+    const t2 = window.setTimeout(() => {
+      setWaveDrawn(true);
+    }, 900);
+    
+    const t3 = window.setTimeout(() => {
+      setDotsVisible(true);
+    }, 1400); // After wave drawing completes (~1s)
+    
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+    };
   }, []);
 
   // Dimensions
@@ -56,80 +66,75 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     const period = dotSpacing;
     const phase = -Math.PI / 2 - (2 * Math.PI * startX) / period;
     
-    // Build wave points
     const step = 2;
-    const leftPoints: { x: number; y: number }[] = [];
-    const rightPoints: { x: number; y: number }[] = [];
+    const allPoints: { x: number; y: number }[] = [];
     
-    // Generate points for both halves
+    // Generate all wave points
     for (let x = 0; x <= W; x += step) {
       const y = waveY + amplitude * Math.sin((2 * Math.PI * x) / period + phase);
-      if (x <= centerX) {
-        leftPoints.push({ x, y });
-      }
-      if (x >= centerX) {
-        rightPoints.push({ x, y });
-      }
+      allPoints.push({ x, y });
     }
     
-    // Reverse left points so it draws from center outward
-    const leftReversed = [...leftPoints].reverse();
+    // Split at center and reverse left half so both draw FROM center OUTWARD
+    const centerIndex = Math.floor(allPoints.length / 2);
+    const leftPoints = allPoints.slice(0, centerIndex + 1).reverse(); // center to left
+    const rightPoints = allPoints.slice(centerIndex); // center to right
     
-    // Build path strings
-    const leftPathD = leftReversed
-      .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
+    // Build SVG path strings
+    const leftPathD = leftPoints
+      .map((p, i) => (i === 0 ? `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}` : `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`))
       .join(" ");
     
     const rightPathD = rightPoints
-      .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
+      .map((p, i) => (i === 0 ? `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}` : `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`))
       .join(" ");
     
-    // Dot positions
+    // Dot positions at each trough
     const dotPositions = Array.from({ length: numDots }, (_, i) => ({
       x: startX + i * dotSpacing,
       y: dotY,
     }));
     
-    // Generate accent dots scattered around the wave
+    // Accent dots scattered around
     const accentDots: { x: number; y: number; size: number }[] = [];
     
     dotPositions.forEach((pos, i) => {
       const offsets = [
-        { dx: -18, dy: -20, size: 3 },
-        { dx: 22, dy: -18, size: 2 },
-        { dx: -25, dy: 5, size: 2 },
-        { dx: 28, dy: 8, size: 3 },
+        { dx: -18, dy: -22, size: 3 },
+        { dx: 22, dy: -20, size: 2 },
+        { dx: -25, dy: 3, size: 2 },
+        { dx: 28, dy: 6, size: 3 },
       ];
       
       offsets.forEach((offset, j) => {
         if ((i + j) % 2 === 0) {
           accentDots.push({
-            x: pos.x + offset.dx + (i % 3) * 3,
-            y: pos.y + offset.dy - 15,
+            x: pos.x + offset.dx + (i % 3) * 2,
+            y: pos.y + offset.dy - 12,
             size: offset.size,
           });
         }
       });
     });
     
-    // Add accent dots along wave peaks
+    // Accent dots at wave peaks (between main dots)
     for (let i = 0; i < numDots - 1; i++) {
       const midX = startX + i * dotSpacing + dotSpacing / 2;
       accentDots.push({
-        x: midX + (i % 2 === 0 ? 5 : -5),
-        y: waveY - amplitude - 8 + (i % 3) * 2,
+        x: midX + (i % 2 === 0 ? 4 : -4),
+        y: waveY - amplitude - 6,
         size: 2 + (i % 2),
       });
     }
     
     return { leftPathD, rightPathD, dotPositions, accentDots };
-  }, [numDots, startX, dotSpacing, amplitude, waveY, dotY, W, centerX]);
+  }, [numDots, startX, dotSpacing, amplitude, waveY, dotY, W]);
 
   return (
     <div
       className={cn(
-        "fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-50 transition-all duration-700",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        "fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-50 transition-all duration-500",
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       )}
       aria-label="Section navigation"
     >
@@ -142,7 +147,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
           <WavePath
             leftPathD={leftPathD}
             rightPathD={rightPathD}
-            isDrawn={isDrawn}
+            isDrawn={waveDrawn}
           />
         </svg>
 

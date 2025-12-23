@@ -6,7 +6,7 @@ interface WavePathProps {
 
 const WavePath = ({ leftPathD, rightPathD, isDrawn }: WavePathProps) => {
   return (
-    <g className={isDrawn ? "animate-wave-breathe" : ""}>
+    <>
       {/* Left half - draws from center to left */}
       <path
         d={leftPathD}
@@ -15,11 +15,10 @@ const WavePath = ({ leftPathD, rightPathD, isDrawn }: WavePathProps) => {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        pathLength={1}
+        className={isDrawn ? "wave-draw-animation wave-breathe" : ""}
         style={{
-          strokeDasharray: 1,
-          strokeDashoffset: isDrawn ? 0 : 1,
-          transition: "stroke-dashoffset 800ms cubic-bezier(0.4, 0, 0.2, 1)",
+          strokeDasharray: 1000,
+          strokeDashoffset: isDrawn ? 0 : 1000,
         }}
       />
       {/* Right half - draws from center to right */}
@@ -30,31 +29,44 @@ const WavePath = ({ leftPathD, rightPathD, isDrawn }: WavePathProps) => {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        pathLength={1}
+        className={isDrawn ? "wave-draw-animation wave-breathe" : ""}
         style={{
-          strokeDasharray: 1,
-          strokeDashoffset: isDrawn ? 0 : 1,
-          transition: "stroke-dashoffset 800ms cubic-bezier(0.4, 0, 0.2, 1)",
+          strokeDasharray: 1000,
+          strokeDashoffset: isDrawn ? 0 : 1000,
         }}
       />
 
       <style>{`
+        .wave-draw-animation {
+          animation: waveDrawIn 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes waveDrawIn {
+          0% {
+            stroke-dashoffset: 1000;
+          }
+          100% {
+            stroke-dashoffset: 0;
+          }
+        }
+        
+        .wave-breathe {
+          animation: waveDrawIn 1s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+                     waveBreathe 4s ease-in-out 1s infinite;
+        }
+        
         @keyframes waveBreathe {
           0%, 100% {
             opacity: 0.55;
-            transform: scaleY(1);
+            stroke-width: 2;
           }
           50% {
-            opacity: 0.7;
-            transform: scaleY(1.02);
+            opacity: 0.75;
+            stroke-width: 2.2;
           }
         }
-        .animate-wave-breathe {
-          animation: waveBreathe 4s ease-in-out infinite;
-          transform-origin: center;
-        }
       `}</style>
-    </g>
+    </>
   );
 };
 
