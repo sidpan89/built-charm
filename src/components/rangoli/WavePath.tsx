@@ -9,21 +9,23 @@ const WavePath = ({ pathD, isDrawn }: WavePathProps) => {
       <path
         d={pathD}
         fill="none"
-        stroke="hsl(var(--charcoal) / 0.6)"
+        stroke="hsl(var(--charcoal) / 0.55)"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={isDrawn ? "wave-draw" : ""}
-        style={{
-          strokeDasharray: 2000,
-          strokeDashoffset: isDrawn ? 0 : 2000,
-        }}
+        className={isDrawn ? "wave-animate" : "wave-hidden"}
       />
       <style>{`
-        .wave-draw {
-          animation: drawWave 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        .wave-hidden {
+          stroke-dasharray: 2000;
+          stroke-dashoffset: 2000;
         }
-        @keyframes drawWave {
+        .wave-animate {
+          stroke-dasharray: 2000;
+          stroke-dashoffset: 0;
+          animation: sketchLine 1.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+        @keyframes sketchLine {
           from { stroke-dashoffset: 2000; }
           to { stroke-dashoffset: 0; }
         }

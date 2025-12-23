@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 interface DotPosition {
   x: number;
   y: number;
-  placement: "above" | "below";
+  isValley: boolean; // true = below wave, false = above wave
 }
 
 interface MenuItem {
@@ -37,12 +37,13 @@ const MenuDots = ({
     <>
       {menuItems.map((item, index) => {
         const pos = dotPositions[index];
-        // Sequential left-to-right stagger delay
-        const staggerDelay = index * 0.1;
+        const staggerDelay = 0.08 * index; // Left-to-right stagger
         
         const isActive = activeSection === item.section;
         const isHovered = hoveredDot === index;
-        const showLabel = isHovered || isActive;
+
+        // Label position: above for valley dots (they're below line), below for peak dots (they're above line)
+        const labelPosition = pos.isValley ? "above" : "below";
 
         return (
           <div
@@ -56,53 +57,55 @@ const MenuDots = ({
             onMouseEnter={() => setHoveredDot(index)}
             onMouseLeave={() => setHoveredDot(null)}
           >
-            {/* Active glow */}
+            {/* Glow for active */}
             {isActive && (
               <div
-                className="absolute rounded-full animate-glow-pulse"
+                className="absolute rounded-full"
                 style={{
-                  width: "28px",
-                  height: "28px",
+                  width: "24px",
+                  height: "24px",
                   left: "50%",
                   top: "50%",
                   transform: "translate(-50%, -50%)",
-                  background: "radial-gradient(circle, hsl(var(--charcoal) / 0.2) 0%, transparent 70%)",
+                  background: "radial-gradient(circle, hsl(var(--charcoal) / 0.25) 0%, transparent 70%)",
+                  animation: "pulseGlow 2s ease-in-out infinite",
                 }}
               />
             )}
 
-            {/* The dot button */}
+            {/* Dot */}
             <button
               onClick={() => onNavigate(item.section)}
               className={cn(
-                "relative rounded-full cursor-pointer",
+                "relative rounded-full cursor-pointer transition-colors duration-200",
                 "w-2.5 h-2.5 sm:w-3 sm:h-3",
-                isActive ? "bg-charcoal" : "bg-charcoal/70 hover:bg-charcoal"
+                isActive ? "bg-charcoal" : "bg-charcoal/65 hover:bg-charcoal"
               )}
               style={{
                 opacity: dotsVisible ? 1 : 0,
-                transform: dotsVisible 
-                  ? `scale(${isHovered ? 1.4 : isActive ? 1.2 : 1})` 
-                  : "scale(0.6)",
+                transform: dotsVisible
+                  ? `scale(${isHovered ? 1.5 : isActive ? 1.25 : 1})`
+                  : "scale(0.5)",
                 transition: `
-                  opacity 350ms ease ${staggerDelay}s, 
-                  transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1) ${staggerDelay}s,
-                  background-color 200ms ease
+                  opacity 300ms ease ${staggerDelay}s,
+                  transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1) ${staggerDelay}s
                 `,
-                boxShadow: isActive ? "0 0 10px 3px hsl(var(--charcoal) / 0.25)" : "none",
               }}
               aria-label={item.label}
             />
 
-            {/* Label - position based on dot placement */}
+            {/* Label */}
             <span
               className={cn(
                 "absolute left-1/2 -translate-x-1/2 whitespace-nowrap",
-                "font-sans text-[9px] sm:text-[11px] tracking-[0.18em] uppercase",
-                "transition-all duration-250 ease-out pointer-events-none font-medium text-charcoal/75",
-                pos.placement === "below" ? "-top-6 sm:-top-7" : "top-5 sm:top-6",
-                showLabel ? "opacity-100" : "opacity-0",
-                showLabel ? "translate-y-0" : (pos.placement === "below" ? "translate-y-1" : "-translate-y-1")
+                "font-sans text-[9px] sm:text-[11px] tracking-[0.2em] uppercase",
+                "pointer-events-none font-medium text-charcoal/70",
+                "transition-all duration-200 ease-out",
+                labelPosition === "above" ? "-top-5 sm:-top-6" : "top-4 sm:top-5",
+                isHovered ? "opacity-100" : "opacity-0",
+                isHovered 
+                  ? "translate-y-0" 
+                  : labelPosition === "above" ? "translate-y-1" : "-translate-y-1"
               )}
             >
               {item.label}
@@ -112,18 +115,9 @@ const MenuDots = ({
       })}
 
       <style>{`
-        @keyframes glowPulse {
-          0%, 100% {
-            opacity: 0.5;
-            transform: translate(-50%, -50%) scale(1);
-          }
-          50% {
-            opacity: 0.8;
-            transform: translate(-50%, -50%) scale(1.3);
-          }
-        }
-        .animate-glow-pulse {
-          animation: glowPulse 2.5s ease-in-out infinite;
+        @keyframes pulseGlow {
+          0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
         }
       `}</style>
     </>
