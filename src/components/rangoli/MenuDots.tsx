@@ -19,6 +19,7 @@ interface MenuDotsProps {
   dotsVisible: boolean;
   activeSection: string;
   onNavigate: (section: string) => void;
+  waveBottomY: number;
 }
 
 const MenuDots = ({
@@ -29,6 +30,7 @@ const MenuDots = ({
   dotsVisible,
   activeSection,
   onNavigate,
+  waveBottomY,
 }: MenuDotsProps) => {
   const [hoveredDot, setHoveredDot] = useState<number | null>(null);
 
@@ -36,10 +38,13 @@ const MenuDots = ({
     <>
       {menuItems.map((item, index) => {
         const pos = dotPositions[index];
-        const staggerDelay = 0.1 * index;
+        const staggerDelay = 0.12 * index;
         
         const isActive = activeSection === item.section;
         const isHovered = hoveredDot === index;
+
+        // Label position: above the wave (above the peak area)
+        const labelY = (waveBottomY - 28) / viewBoxHeight * 100; // well above the wave
 
         return (
           <div
@@ -53,66 +58,46 @@ const MenuDots = ({
             onMouseEnter={() => setHoveredDot(index)}
             onMouseLeave={() => setHoveredDot(null)}
           >
-            {/* Active glow ring */}
-            {isActive && (
-              <div
-                className="absolute rounded-full"
-                style={{
-                  width: "22px",
-                  height: "22px",
-                  left: "50%",
-                  top: "50%",
-                  transform: "translate(-50%, -50%)",
-                  background: "radial-gradient(circle, hsl(0 0% 30% / 0.2) 0%, transparent 70%)",
-                  animation: "glowPulse 2s ease-in-out infinite",
-                }}
-              />
-            )}
-
             {/* Dot */}
             <button
               onClick={() => onNavigate(item.section)}
-              className={cn(
-                "relative rounded-full cursor-pointer transition-colors duration-150",
-                "w-2.5 h-2.5 sm:w-3 sm:h-3",
-                isActive ? "bg-neutral-700" : "bg-neutral-500 hover:bg-neutral-700"
-              )}
+              className="relative rounded-full cursor-pointer"
               style={{
+                width: "10px",
+                height: "10px",
+                backgroundColor: isActive ? "#4B5563" : "#6B7280",
                 opacity: dotsVisible ? 1 : 0,
                 transform: dotsVisible
                   ? `scale(${isHovered ? 1.2 : isActive ? 1.1 : 1})`
-                  : "scale(0.5)",
+                  : "scale(0.3)",
                 transition: `
-                  opacity 300ms ease ${staggerDelay}s,
-                  transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1) ${staggerDelay}s
+                  opacity 350ms ease ${staggerDelay}s,
+                  transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1) ${dotsVisible ? staggerDelay : 0}s,
+                  background-color 150ms ease
                 `,
               }}
               aria-label={item.label}
             />
 
-            {/* Label - appears ABOVE the wave when hovering */}
+            {/* Label - appears ABOVE the wave on hover */}
             <span
-              className={cn(
-                "absolute left-1/2 -translate-x-1/2 whitespace-nowrap",
-                "font-sans text-[9px] sm:text-[10px] tracking-[0.2em] uppercase",
-                "pointer-events-none font-medium text-neutral-600",
-                "transition-all duration-200 ease-out",
-                "-top-10 sm:-top-12",
-                isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-              )}
+              className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none"
+              style={{
+                top: `-32px`,
+                fontSize: "10px",
+                letterSpacing: "0.15em",
+                fontWeight: 500,
+                color: "#4B5563",
+                opacity: isHovered ? 1 : 0,
+                transform: `translateX(-50%) translateY(${isHovered ? 0 : 4}px)`,
+                transition: "opacity 200ms ease, transform 200ms ease",
+              }}
             >
               {item.label}
             </span>
           </div>
         );
       })}
-
-      <style>{`
-        @keyframes glowPulse {
-          0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-          50% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.15); }
-        }
-      `}</style>
     </>
   );
 };
