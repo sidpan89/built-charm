@@ -267,34 +267,16 @@ const Hero = ({ onExplore }: HeroProps) => {
         />
       </div>
 
-      {/* Content - Centered */}
-      <div className="relative z-10 container mx-auto px-6 lg:px-12 py-32 flex flex-col items-center justify-center text-center">
+      {/* Content - Centered toward top */}
+      <div className="relative z-10 container mx-auto px-6 lg:px-12 pt-20 md:pt-28 lg:pt-32 flex flex-col items-center text-center">
         <div className="max-w-3xl flex flex-col items-center">
-          {/* Tagline */}
+          {/* Logo Image - Centered */}
           <div
             className={cn(
-              "mb-8 overflow-hidden",
-              isVisible ? "opacity-100" : "opacity-0"
-            )}
-          >
-            <span
-              className={cn(
-                "text-label text-charcoal/60 tracking-[0.3em] text-xs inline-block transition-all duration-700",
-                isVisible ? "translate-y-0" : "translate-y-full"
-              )}
-              style={{ transitionDelay: "300ms" }}
-            >
-              design matters
-            </span>
-          </div>
-
-          {/* Logo Image - Centered above text */}
-          <div
-            className={cn(
-              "mb-8 transition-all duration-1000",
+              "mb-6 transition-all duration-1000",
               isVisible ? "opacity-100 scale-100" : "opacity-0 scale-90"
             )}
-            style={{ transitionDelay: "500ms" }}
+            style={{ transitionDelay: "300ms" }}
           >
             <img
               src={studioLogo}
