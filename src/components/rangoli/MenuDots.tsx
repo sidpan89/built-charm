@@ -32,11 +32,17 @@ const MenuDots = ({
 }: MenuDotsProps) => {
   const [hoveredDot, setHoveredDot] = useState<number | null>(null);
 
+  // Find center index for sequential animation from center outward
+  const centerIndex = Math.floor(menuItems.length / 2);
+
   return (
     <>
       {menuItems.map((item, index) => {
         const pos = dotPositions[index];
-        const dotDelay = 0.3 + index * 0.08;
+        // Calculate delay based on distance from center
+        const distanceFromCenter = Math.abs(index - centerIndex + 0.5);
+        const dotDelay = 0.1 + distanceFromCenter * 0.12;
+        
         const isActive = activeSection === item.section;
         const isHovered = hoveredDot === index;
 
@@ -49,20 +55,42 @@ const MenuDots = ({
               top: `${(pos.y / viewBoxHeight) * 100}%`,
               transform: "translate(-50%, -50%)",
               opacity: isDrawn ? 1 : 0,
-              transition: `opacity 400ms ease ${dotDelay}s`,
+              transition: `opacity 400ms ease ${dotDelay}s, transform 400ms ease ${dotDelay}s`,
             }}
             onMouseEnter={() => setHoveredDot(index)}
             onMouseLeave={() => setHoveredDot(null)}
           >
+            {/* Glow ring for active dot */}
+            {isActive && (
+              <div
+                className="absolute inset-0 rounded-full animate-active-glow"
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-50%, -50%)",
+                  background: "radial-gradient(circle, hsl(var(--charcoal) / 0.3) 0%, transparent 70%)",
+                }}
+              />
+            )}
+
             <button
               onClick={() => onNavigate(item.section)}
               className={cn(
                 "relative rounded-full transition-all duration-300 ease-out cursor-pointer",
                 "w-2 h-2 sm:w-2.5 sm:h-2.5",
-                isActive || isHovered
+                isActive
+                  ? "bg-charcoal scale-125"
+                  : isHovered
                   ? "bg-charcoal scale-125"
                   : "bg-charcoal/80 hover:bg-charcoal"
               )}
+              style={{
+                boxShadow: isActive
+                  ? "0 0 12px 4px hsl(var(--charcoal) / 0.35)"
+                  : "none",
+              }}
               aria-label={item.label}
             />
 
@@ -81,6 +109,22 @@ const MenuDots = ({
           </div>
         );
       })}
+
+      <style>{`
+        @keyframes activeGlow {
+          0%, 100% {
+            opacity: 0.6;
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.3);
+          }
+        }
+        .animate-active-glow {
+          animation: activeGlow 2s ease-in-out infinite;
+        }
+      `}</style>
     </>
   );
 };

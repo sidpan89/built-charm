@@ -29,10 +29,10 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   useEffect(() => {
     const t1 = window.setTimeout(() => {
       setIsVisible(true);
-      // Start wave drawing
+      // Start wave drawing from center
       window.setTimeout(() => setIsDrawn(true), 100);
-      // Show dots after wave is mostly drawn
-      window.setTimeout(() => setDotsVisible(true), 700);
+      // Show dots after wave is drawn
+      window.setTimeout(() => setDotsVisible(true), 600);
     }, 800);
     return () => window.clearTimeout(t1);
   }, []);
@@ -40,6 +40,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   // Dimensions
   const W = 420;
   const H = 80;
+  const centerX = W / 2;
   
   // Wave parameters
   const numDots = menuItems.length;
@@ -51,28 +52,35 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   const waveY = 32;
   const dotY = waveY + amplitude + 8;
 
-  const { pathD, dotPositions, accentDots, pathLength } = useMemo(() => {
+  const { leftPathD, rightPathD, dotPositions, accentDots } = useMemo(() => {
     const period = dotSpacing;
     const phase = -Math.PI / 2 - (2 * Math.PI * startX) / period;
     
-    // Build smooth wave path
-    const points: { x: number; y: number }[] = [];
+    // Build wave points
     const step = 2;
+    const leftPoints: { x: number; y: number }[] = [];
+    const rightPoints: { x: number; y: number }[] = [];
     
+    // Generate points for both halves
     for (let x = 0; x <= W; x += step) {
       const y = waveY + amplitude * Math.sin((2 * Math.PI * x) / period + phase);
-      points.push({ x, y });
+      if (x <= centerX) {
+        leftPoints.push({ x, y });
+      }
+      if (x >= centerX) {
+        rightPoints.push({ x, y });
+      }
     }
     
-    // Calculate approximate path length
-    let pathLength = 0;
-    for (let i = 1; i < points.length; i++) {
-      const dx = points[i].x - points[i - 1].x;
-      const dy = points[i].y - points[i - 1].y;
-      pathLength += Math.sqrt(dx * dx + dy * dy);
-    }
+    // Reverse left points so it draws from center outward
+    const leftReversed = [...leftPoints].reverse();
     
-    const pathD = points
+    // Build path strings
+    const leftPathD = leftReversed
+      .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
+      .join(" ");
+    
+    const rightPathD = rightPoints
       .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
       .join(" ");
     
@@ -85,9 +93,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     // Generate accent dots scattered around the wave
     const accentDots: { x: number; y: number; size: number }[] = [];
     
-    // Add accent dots near each menu dot position
     dotPositions.forEach((pos, i) => {
-      // Varied positions around each main dot
       const offsets = [
         { dx: -18, dy: -20, size: 3 },
         { dx: 22, dy: -18, size: 2 },
@@ -95,7 +101,6 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
         { dx: 28, dy: 8, size: 3 },
       ];
       
-      // Only add some offsets based on index for variety
       offsets.forEach((offset, j) => {
         if ((i + j) % 2 === 0) {
           accentDots.push({
@@ -107,7 +112,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
       });
     });
     
-    // Add a few extra accent dots along the wave peaks
+    // Add accent dots along wave peaks
     for (let i = 0; i < numDots - 1; i++) {
       const midX = startX + i * dotSpacing + dotSpacing / 2;
       accentDots.push({
@@ -117,8 +122,8 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
       });
     }
     
-    return { pathD, dotPositions, accentDots, pathLength };
-  }, [numDots, startX, dotSpacing, amplitude, waveY, dotY, W]);
+    return { leftPathD, rightPathD, dotPositions, accentDots };
+  }, [numDots, startX, dotSpacing, amplitude, waveY, dotY, W, centerX]);
 
   return (
     <div
@@ -130,11 +135,15 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     >
       <div className="relative" style={{ width: `min(${W}px, 90vw)`, height: `${H}px` }}>
         <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
+          className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
           viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="xMidYMid meet"
         >
-          <WavePath pathD={pathD} isDrawn={isDrawn} pathLength={pathLength} />
+          <WavePath
+            leftPathD={leftPathD}
+            rightPathD={rightPathD}
+            isDrawn={isDrawn}
+          />
         </svg>
 
         <AccentDots
