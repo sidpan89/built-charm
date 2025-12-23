@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { buildSineWavePath, troughXPositions } from "./rangoliMath";
+import { buildSineWavePath } from "./rangoliMath";
 
 interface RangoliNavigationProps {
   onNavigate: (section: string) => void;
@@ -35,12 +35,13 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   const W = 480;
   const H = 110;
 
-  // Uniform wave sized to fit exactly 6 consecutive dips (no unused dips)
+  // Uniform wave sized to fit exactly 6 consecutive dips (no empty dips)
   const period = 80;
   const firstDotX = 40; // first dip position
   const midY = 55;
   const amplitude = 22;
-  const phase = -Math.PI / 2; // makes dips (lowest) at x = firstDotX + n*period
+  // Make troughs (lowest points) happen exactly at x = firstDotX + n * period
+  const phase = -Math.PI / 2 - (2 * Math.PI * firstDotX) / period;
 
   const { pathD, dotPositions } = useMemo(() => {
     const pathD = buildSineWavePath({
@@ -55,7 +56,8 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
 
     const yAt = (x: number) => midY + amplitude * Math.sin((2 * Math.PI * x) / period + phase);
 
-    const xs = troughXPositions({ firstTroughX: firstDotX, count: menuItems.length, period });
+    // Place dots on every consecutive trough (no skipped dips)
+    const xs = Array.from({ length: menuItems.length }, (_, i) => firstDotX + i * period);
     const dotGap = 14; // hover within dip, not touching the line
 
     const dotPositions = xs.map((x, i) => {
