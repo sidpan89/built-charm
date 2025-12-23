@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { buildSineWavePath } from "./rangoliMath";
 import WavePath from "./WavePath";
-import AccentDots from "./AccentDots";
 import MenuDots from "./MenuDots";
 
 interface RangoliNavigationProps {
@@ -29,70 +27,70 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   useEffect(() => {
     const t = window.setTimeout(() => {
       setIsVisible(true);
-      window.setTimeout(() => setIsDrawn(true), 140);
-    }, 900);
+      window.setTimeout(() => setIsDrawn(true), 100);
+    }, 800);
     return () => window.clearTimeout(t);
   }, []);
 
-  const W = 480;
-  const H = 110;
+  // Dimensions
+  const W = 420;
+  const H = 80;
+  
+  // Wave parameters - dots at troughs, wave cups them from above
+  const numDots = menuItems.length;
+  const dotSpacing = 60; // horizontal distance between dots
+  const totalDotsWidth = (numDots - 1) * dotSpacing;
+  const startX = (W - totalDotsWidth) / 2; // center the dots
+  
+  const amplitude = 12; // wave height (half peak-to-trough)
+  const waveY = 32; // vertical center of the wave
+  const dotY = waveY + amplitude + 8; // dots sit below the wave troughs with gap
 
-  // Uniform wave sized to fit exactly 6 consecutive dips (no empty dips)
-  const period = 80;
-  const firstDotX = 40;
-  const midY = 55;
-  const amplitude = 22;
-  // Make troughs (lowest points) happen exactly at x = firstDotX + n * period
-  const phase = -Math.PI / 2 - (2 * Math.PI * firstDotX) / period;
-
-  const { pathD, dotPositions, accentDots } = useMemo(() => {
-    const pathD = buildSineWavePath({
-      width: W,
-      height: H,
-      midY,
-      amplitude,
-      period,
-      phase,
-      stepPx: 3,
-    });
-
-    const yAt = (x: number) => midY + amplitude * Math.sin((2 * Math.PI * x) / period + phase);
-
-    // Place dots on every consecutive trough (no skipped dips)
-    const xs = Array.from({ length: menuItems.length }, (_, i) => firstDotX + i * period);
-    const dotGap = 14;
-
-    const dotPositions = xs.map((x, i) => {
-      const yLine = yAt(x);
-      return {
-        x,
-        yLine,
-        yDot: yLine - dotGap,
-        labelPos: i % 2 === 0 ? ("top" as const) : ("bottom" as const),
-      };
-    });
-
-    const accentDots = dotPositions.flatMap((p, i) => {
-      const jitter = (n: number) => (i % 2 === 0 ? n : -n);
-      return [
-        { x: p.x - 22, y: p.yLine + jitter(6), size: 3 },
-        { x: p.x + 18, y: p.yLine - jitter(9), size: 4 },
-        { x: p.x + 30, y: p.yDot + jitter(4), size: 2 },
-      ];
-    });
-
-    return { pathD, dotPositions, accentDots };
-  }, [menuItems.length, phase]);
+  const { pathD, dotPositions } = useMemo(() => {
+    // Generate smooth sine wave path
+    // Period = dotSpacing so each dot aligns with a trough
+    const period = dotSpacing;
+    
+    // Phase shift so troughs occur at dot positions
+    // sin(x) has troughs at x = -π/2, 3π/2, etc.
+    // We want troughs at startX + n * period
+    // So: (2π * startX / period) + phase = -π/2
+    // phase = -π/2 - (2π * startX / period)
+    const phase = -Math.PI / 2 - (2 * Math.PI * startX) / period;
+    
+    // Build the wave path with fine steps for smoothness
+    const points: string[] = [];
+    const step = 2;
+    
+    for (let x = 0; x <= W; x += step) {
+      const y = waveY + amplitude * Math.sin((2 * Math.PI * x) / period + phase);
+      if (x === 0) {
+        points.push(`M ${x} ${y}`);
+      } else {
+        points.push(`L ${x} ${y}`);
+      }
+    }
+    
+    const pathD = points.join(" ");
+    
+    // Dot positions - at each trough location, below the wave
+    const dotPositions = Array.from({ length: numDots }, (_, i) => ({
+      x: startX + i * dotSpacing,
+      y: dotY,
+    }));
+    
+    return { pathD, dotPositions };
+  }, [numDots, startX, dotSpacing, amplitude, waveY, dotY]);
 
   return (
     <div
       className={cn(
-        "fixed bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-700",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+        "fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-50 transition-all duration-700",
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}
       aria-label="Section navigation"
     >
-      <div className="relative w-[min(480px,92vw)] aspect-[480/110]">
+      <div className="relative" style={{ width: `min(${W}px, 90vw)`, height: `${H}px` }}>
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
           viewBox={`0 0 ${W} ${H}`}
@@ -100,13 +98,6 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
         >
           <WavePath pathD={pathD} isDrawn={isDrawn} />
         </svg>
-
-        <AccentDots
-          dots={accentDots}
-          viewBoxWidth={W}
-          viewBoxHeight={H}
-          isDrawn={isDrawn}
-        />
 
         <MenuDots
           menuItems={menuItems}
@@ -117,39 +108,6 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
           activeSection={activeSection}
           onNavigate={onNavigate}
         />
-
-        {/* Rangoli micro-animations */}
-        <style>{`
-          @keyframes rangoliDotBounce {
-            0%, 100% { 
-              transform: translateY(0); 
-            }
-            25% { 
-              transform: translateY(-3px); 
-            }
-            75% { 
-              transform: translateY(2px); 
-            }
-          }
-          @keyframes rangoliDotPulse {
-            0%, 100% { 
-              opacity: 0.7;
-              transform: scale(1);
-            }
-            50% { 
-              opacity: 1;
-              transform: scale(1.15);
-            }
-          }
-          @keyframes rangoliSparkle {
-            0%, 100% { opacity: 0.25; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.55; transform: translate(-50%, -50%) scale(1.35); }
-          }
-          @keyframes rangoliWaveBreath {
-            0%, 100% { opacity: 0.48; }
-            50% { opacity: 0.62; }
-          }
-        `}</style>
       </div>
     </div>
   );

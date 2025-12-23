@@ -3,9 +3,7 @@ import { cn } from "@/lib/utils";
 
 interface DotPosition {
   x: number;
-  yLine: number;
-  yDot: number;
-  labelPos: "top" | "bottom";
+  y: number;
 }
 
 interface MenuItem {
@@ -38,9 +36,9 @@ const MenuDots = ({
     <>
       {menuItems.map((item, index) => {
         const pos = dotPositions[index];
-        const isTop = pos.labelPos === "top";
-        const dotDelay = 0.9 + index * 0.12;
+        const dotDelay = 0.3 + index * 0.08;
         const isActive = activeSection === item.section;
+        const isHovered = hoveredDot === index;
 
         return (
           <div
@@ -48,10 +46,10 @@ const MenuDots = ({
             className="absolute"
             style={{
               left: `${(pos.x / viewBoxWidth) * 100}%`,
-              top: `${(pos.yDot / viewBoxHeight) * 100}%`,
+              top: `${(pos.y / viewBoxHeight) * 100}%`,
               transform: "translate(-50%, -50%)",
               opacity: isDrawn ? 1 : 0,
-              transition: `opacity 420ms ease ${dotDelay}s, transform 420ms ease ${dotDelay}s`,
+              transition: `opacity 400ms ease ${dotDelay}s`,
             }}
             onMouseEnter={() => setHoveredDot(index)}
             onMouseLeave={() => setHoveredDot(null)}
@@ -59,27 +57,23 @@ const MenuDots = ({
             <button
               onClick={() => onNavigate(item.section)}
               className={cn(
-                "relative rounded-full transition-all duration-300 cursor-pointer",
-                "w-2.5 h-2.5 sm:w-3 sm:h-3",
-                isActive
-                  ? "bg-charcoal scale-110"
-                  : "bg-charcoal/60 hover:bg-charcoal hover:scale-125"
+                "relative rounded-full transition-all duration-300 ease-out cursor-pointer",
+                "w-2 h-2 sm:w-2.5 sm:h-2.5",
+                isActive || isHovered
+                  ? "bg-charcoal scale-125"
+                  : "bg-charcoal/80 hover:bg-charcoal"
               )}
-              style={{
-                animation: isDrawn
-                  ? `rangoliDotBounce 2.4s ease-in-out infinite, rangoliDotPulse 3s ease-in-out infinite`
-                  : "none",
-                animationDelay: `${1.8 + index * 0.15}s, ${2 + index * 0.2}s`,
-                boxShadow: isActive ? "0 0 10px 3px hsl(var(--charcoal) / 0.4)" : "none",
-              }}
               aria-label={item.label}
             />
 
+            {/* Label appears on hover */}
             <span
               className={cn(
-                "absolute left-1/2 -translate-x-1/2 whitespace-nowrap font-sans text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase transition-all duration-300 pointer-events-none font-medium",
-                isTop ? "-top-5 sm:-top-7" : "top-5 sm:top-7",
-                hoveredDot === index ? "opacity-100 scale-100" : "opacity-0 scale-90"
+                "absolute left-1/2 -translate-x-1/2 whitespace-nowrap",
+                "font-sans text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase",
+                "transition-all duration-300 ease-out pointer-events-none font-medium text-charcoal/80",
+                "top-5 sm:top-6",
+                isHovered ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
               )}
             >
               {item.label}
