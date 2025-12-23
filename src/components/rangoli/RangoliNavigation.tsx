@@ -28,7 +28,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   useEffect(() => {
     const t1 = window.setTimeout(() => setIsVisible(true), 500);
     const t2 = window.setTimeout(() => setWaveDrawn(true), 600);
-    const t3 = window.setTimeout(() => setDotsVisible(true), 1600);
+    const t3 = window.setTimeout(() => setDotsVisible(true), 1500);
     
     return () => {
       window.clearTimeout(t1);
@@ -38,35 +38,40 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   }, []);
 
   // Canvas dimensions
-  const W = 460;
-  const H = 70;
+  const W = 480;
+  const H = 80;
   const numDots = menuItems.length;
 
-  // Wave geometry - dots ONLY at troughs (valleys)
-  // Spacing between dots equals the wavelength (each dot = one trough)
-  const dotSpacing = 68;
-  const amplitude = 14;
-  const waveCenter = 28; // vertical center (kept high to leave room for dots below)
-  const gapBelowWave = 8; // whitespace between bottom of line and top of dot
-  const dotRadius = 5; // approx radius in px (since the dot is ~10px)
+  // Wave geometry
+  const dotSpacing = 70; // horizontal distance between dots
+  const amplitude = 16; // wave height (half peak-to-peak)
+  const waveCenter = 30; // vertical center of the wave (toward top for dots below)
+  const gapBetweenWaveAndDot = 10; // whitespace between lowest wave point and top of dot
+  const dotRadius = 5; // visual radius of the dot
 
   const { pathD, dotPositions } = useMemo(() => {
     const totalWidth = (numDots - 1) * dotSpacing;
     const startX = (W - totalWidth) / 2;
 
-    // Wavelength = dotSpacing (so each dot aligns with a trough)
-    const wavelength = dotSpacing;
+    // Use cosine for simpler math: cos(0) = 1 (peak), cos(π) = -1 (trough)
+    // We want TROUGHS at dot positions, so we use -cos which gives:
+    // -cos(0) = -1 (trough), -cos(π) = 1 (peak)
+    // This places a trough at x = startX when the argument is 0
+    
+    const wavelength = dotSpacing; // one full wave cycle per dot spacing
 
-    // Phase: make a trough (sin = -1) land exactly at x = startX
-    const phase = -Math.PI / 2 - (2 * Math.PI / wavelength) * startX;
-
+    // y = waveCenter + amplitude * cos(2π * (x - startX) / wavelength)
+    // At x = startX: cos(0) = 1, so y = waveCenter + amplitude = PEAK (we want trough!)
+    // Use negative cosine: y = waveCenter - amplitude * cos(...)
+    // At x = startX: y = waveCenter - amplitude * 1 = waveCenter - amplitude = LOW = TROUGH ✓
+    
     const yAt = (x: number) => {
-      const theta = (2 * Math.PI / wavelength) * x + phase;
-      return waveCenter - amplitude * Math.sin(theta);
+      const arg = (2 * Math.PI * (x - startX)) / wavelength;
+      return waveCenter - amplitude * Math.cos(arg);
     };
 
-    // Generate smooth sine wave
-    const step = 1.5;
+    // Generate smooth sine wave path
+    const step = 1;
     const points: string[] = [];
 
     for (let x = 0; x <= W; x += step) {
@@ -76,19 +81,48 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
 
     const pathD = points.join(" ");
 
-    // Dot centers: at each trough X, placed BELOW the curve by (gap + radius)
-    // This guarantees the TOP of the dot stays `gapBelowWave` away from the line.
-    const troughXs = Array.from({ length: numDots }, (_, i) => startX + i * wavelength);
-    const dotPositions = troughXs.map((x) => {
-      const yLine = yAt(x); // this is the trough's lowest y for that x
-      return {
-        x,
-        y: yLine + gapBelowWave + dotRadius,
-      };
-    });
+    // Dot positions: at each trough, BELOW the wave
+    // Trough Y = waveCenter - amplitude (since cos at trough = 1, but we negate)
+    // Wait, let me recalculate:
+    // y = waveCenter - amplitude * cos(arg)
+    // At trough: arg = 0, 2π, 4π... → cos = 1 → y = waveCenter - amplitude (SMALL Y = high on screen)
+    // At peak: arg = π, 3π... → cos = -1 → y = waveCenter + amplitude (LARGE Y = low on screen)
+    // That's backwards! Let me fix:
+    
+    // For y increasing downward (SVG), we want:
+    // TROUGH (visually low, cupping from above) = LARGE Y
+    // PEAK (visually high) = SMALL Y
+    // So: y = waveCenter + amplitude * cos(arg) gives us peak at arg=0
+    // We want trough at arg=0, so: y = waveCenter - amplitude * cos(arg)... no wait
+    
+    // Let's be explicit:
+    // y = waveCenter + amplitude * cos(2π(x-startX)/λ)
+    // At x = startX: cos(0) = 1, y = waveCenter + amplitude → LARGE Y → LOW on page = TROUGH ✓
+    
+    const yAtFixed = (x: number) => {
+      const arg = (2 * Math.PI * (x - startX)) / wavelength;
+      return waveCenter + amplitude * Math.cos(arg);
+    };
 
-    return { pathD, dotPositions };
-  }, [numDots, dotSpacing, amplitude, waveCenter, gapBelowWave, dotRadius, W]);
+    // Regenerate with fixed function
+    const pointsFixed: string[] = [];
+    for (let x = 0; x <= W; x += step) {
+      const y = yAtFixed(x);
+      pointsFixed.push(x === 0 ? `M ${x} ${y.toFixed(2)}` : `L ${x} ${y.toFixed(2)}`);
+    }
+    const pathDFixed = pointsFixed.join(" ");
+
+    // Dot positions at each trough
+    // At trough: x = startX + i * wavelength, y = waveCenter + amplitude
+    const troughY = waveCenter + amplitude;
+    
+    const dotPositions = Array.from({ length: numDots }, (_, i) => ({
+      x: startX + i * wavelength,
+      y: troughY + gapBetweenWaveAndDot + dotRadius, // below the wave with gap
+    }));
+
+    return { pathD: pathDFixed, dotPositions };
+  }, [numDots, dotSpacing, amplitude, waveCenter, gapBetweenWaveAndDot, dotRadius, W]);
 
   return (
     <div
