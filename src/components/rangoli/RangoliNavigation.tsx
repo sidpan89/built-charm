@@ -57,14 +57,15 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     const yAt = (x: number) => midY + amplitude * Math.sin((2 * Math.PI * x) / period + phase);
 
     const xs = troughXPositions({ firstTroughX: firstDotX, count: menuItems.length, period });
-    const dotGap = 7; // keeps dots in the furrow without touching the line
+    const dotGap = 8; // keeps dots inside the dip without touching the line
 
     const dotPositions = xs.map((x, i) => {
       const yLine = yAt(x);
       return {
         x,
         yLine,
-        yDot: yLine + dotGap,
+        // Place dot ABOVE the trough line (lower y in SVG) so it sits inside the dip
+        yDot: yLine - dotGap,
         labelPos: i % 2 === 0 ? ("top" as const) : ("bottom" as const),
       };
     });
