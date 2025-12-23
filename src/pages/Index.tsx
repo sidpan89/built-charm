@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Header from "@/components/Header";
-import DotNavigation from "@/components/DotNavigation";
+import RangoliNavigation from "@/components/rangoli/RangoliNavigation";
 import Hero from "@/components/Hero";
 import HorizontalSlider from "@/components/HorizontalSlider";
 import Portfolio from "@/components/Portfolio";
@@ -28,11 +28,8 @@ const Index = () => {
         }`}
       >
         <Header />
-        <DotNavigation 
-          onNavigate={handleNavigate} 
-          activeSection={activeSection} 
-        />
-        
+        <RangoliNavigation onNavigate={handleNavigate} activeSection={activeSection} />
+
         <main className="relative">
           {/* Hero - always visible as the main landing */}
           <div className={activeSection === "home" ? "block" : "hidden"}>
