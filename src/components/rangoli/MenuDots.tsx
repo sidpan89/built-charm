@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 interface DotPosition {
   x: number;
   y: number;
+  placement: "above" | "below";
 }
 
 interface MenuItem {
@@ -16,7 +17,7 @@ interface MenuDotsProps {
   dotPositions: DotPosition[];
   viewBoxWidth: number;
   viewBoxHeight: number;
-  isDrawn: boolean;
+  dotsVisible: boolean;
   activeSection: string;
   onNavigate: (section: string) => void;
 }
@@ -26,28 +27,22 @@ const MenuDots = ({
   dotPositions,
   viewBoxWidth,
   viewBoxHeight,
-  isDrawn,
+  dotsVisible,
   activeSection,
   onNavigate,
 }: MenuDotsProps) => {
   const [hoveredDot, setHoveredDot] = useState<number | null>(null);
 
-  // Calculate order: center dots first, then outward
-  // For 6 items: indices 2,3 first, then 1,4, then 0,5
-  const getSequentialDelay = (index: number, total: number) => {
-    const center = (total - 1) / 2;
-    const distanceFromCenter = Math.abs(index - center);
-    return distanceFromCenter * 0.15; // 150ms between each "ring"
-  };
-
   return (
     <>
       {menuItems.map((item, index) => {
         const pos = dotPositions[index];
-        const sequentialDelay = getSequentialDelay(index, menuItems.length);
+        // Sequential left-to-right stagger delay
+        const staggerDelay = index * 0.1;
         
         const isActive = activeSection === item.section;
         const isHovered = hoveredDot === index;
+        const showLabel = isHovered || isActive;
 
         return (
           <div
@@ -61,53 +56,53 @@ const MenuDots = ({
             onMouseEnter={() => setHoveredDot(index)}
             onMouseLeave={() => setHoveredDot(null)}
           >
-            {/* Glow ring for active dot */}
+            {/* Active glow */}
             {isActive && (
               <div
-                className="absolute rounded-full animate-active-glow"
+                className="absolute rounded-full animate-glow-pulse"
                 style={{
-                  width: "24px",
-                  height: "24px",
+                  width: "28px",
+                  height: "28px",
                   left: "50%",
                   top: "50%",
                   transform: "translate(-50%, -50%)",
-                  background: "radial-gradient(circle, hsl(var(--charcoal) / 0.25) 0%, transparent 70%)",
+                  background: "radial-gradient(circle, hsl(var(--charcoal) / 0.2) 0%, transparent 70%)",
                 }}
               />
             )}
 
+            {/* The dot button */}
             <button
               onClick={() => onNavigate(item.section)}
               className={cn(
-                "relative rounded-full cursor-pointer dot-fade-in",
-                "w-2 h-2 sm:w-2.5 sm:h-2.5",
-                isActive
-                  ? "bg-charcoal"
-                  : isHovered
-                  ? "bg-charcoal"
-                  : "bg-charcoal/80 hover:bg-charcoal"
+                "relative rounded-full cursor-pointer",
+                "w-2.5 h-2.5 sm:w-3 sm:h-3",
+                isActive ? "bg-charcoal" : "bg-charcoal/70 hover:bg-charcoal"
               )}
               style={{
-                opacity: isDrawn ? 1 : 0,
-                transform: isDrawn 
-                  ? `scale(${isActive || isHovered ? 1.3 : 1})` 
-                  : "scale(0.5)",
-                transition: `opacity 400ms ease ${sequentialDelay}s, transform 400ms ease ${sequentialDelay}s`,
-                boxShadow: isActive
-                  ? "0 0 12px 4px hsl(var(--charcoal) / 0.3)"
-                  : "none",
+                opacity: dotsVisible ? 1 : 0,
+                transform: dotsVisible 
+                  ? `scale(${isHovered ? 1.4 : isActive ? 1.2 : 1})` 
+                  : "scale(0.6)",
+                transition: `
+                  opacity 350ms ease ${staggerDelay}s, 
+                  transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1) ${staggerDelay}s,
+                  background-color 200ms ease
+                `,
+                boxShadow: isActive ? "0 0 10px 3px hsl(var(--charcoal) / 0.25)" : "none",
               }}
               aria-label={item.label}
             />
 
-            {/* Label appears on hover */}
+            {/* Label - position based on dot placement */}
             <span
               className={cn(
                 "absolute left-1/2 -translate-x-1/2 whitespace-nowrap",
-                "font-sans text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase",
-                "transition-all duration-300 ease-out pointer-events-none font-medium text-charcoal/80",
-                "top-5 sm:top-6",
-                isHovered ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+                "font-sans text-[9px] sm:text-[11px] tracking-[0.18em] uppercase",
+                "transition-all duration-250 ease-out pointer-events-none font-medium text-charcoal/75",
+                pos.placement === "below" ? "-top-6 sm:-top-7" : "top-5 sm:top-6",
+                showLabel ? "opacity-100" : "opacity-0",
+                showLabel ? "translate-y-0" : (pos.placement === "below" ? "translate-y-1" : "-translate-y-1")
               )}
             >
               {item.label}
@@ -117,18 +112,18 @@ const MenuDots = ({
       })}
 
       <style>{`
-        @keyframes activeGlow {
+        @keyframes glowPulse {
           0%, 100% {
             opacity: 0.5;
             transform: translate(-50%, -50%) scale(1);
           }
           50% {
             opacity: 0.8;
-            transform: translate(-50%, -50%) scale(1.4);
+            transform: translate(-50%, -50%) scale(1.3);
           }
         }
-        .animate-active-glow {
-          animation: activeGlow 2.5s ease-in-out infinite;
+        .animate-glow-pulse {
+          animation: glowPulse 2.5s ease-in-out infinite;
         }
       `}</style>
     </>

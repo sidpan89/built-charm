@@ -1,69 +1,31 @@
 interface WavePathProps {
-  leftPathD: string;
-  rightPathD: string;
+  pathD: string;
   isDrawn: boolean;
 }
 
-const WavePath = ({ leftPathD, rightPathD, isDrawn }: WavePathProps) => {
+const WavePath = ({ pathD, isDrawn }: WavePathProps) => {
   return (
     <>
-      {/* Left half - draws from center to left */}
       <path
-        d={leftPathD}
+        d={pathD}
         fill="none"
-        stroke="hsl(var(--charcoal) / 0.55)"
+        stroke="hsl(var(--charcoal) / 0.6)"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={isDrawn ? "wave-draw-animation wave-breathe" : ""}
+        className={isDrawn ? "wave-draw" : ""}
         style={{
-          strokeDasharray: 1000,
-          strokeDashoffset: isDrawn ? 0 : 1000,
+          strokeDasharray: 2000,
+          strokeDashoffset: isDrawn ? 0 : 2000,
         }}
       />
-      {/* Right half - draws from center to right */}
-      <path
-        d={rightPathD}
-        fill="none"
-        stroke="hsl(var(--charcoal) / 0.55)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={isDrawn ? "wave-draw-animation wave-breathe" : ""}
-        style={{
-          strokeDasharray: 1000,
-          strokeDashoffset: isDrawn ? 0 : 1000,
-        }}
-      />
-
       <style>{`
-        .wave-draw-animation {
-          animation: waveDrawIn 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        .wave-draw {
+          animation: drawWave 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
         }
-        
-        @keyframes waveDrawIn {
-          0% {
-            stroke-dashoffset: 1000;
-          }
-          100% {
-            stroke-dashoffset: 0;
-          }
-        }
-        
-        .wave-breathe {
-          animation: waveDrawIn 1s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-                     waveBreathe 4s ease-in-out 1s infinite;
-        }
-        
-        @keyframes waveBreathe {
-          0%, 100% {
-            opacity: 0.55;
-            stroke-width: 2;
-          }
-          50% {
-            opacity: 0.75;
-            stroke-width: 2.2;
-          }
+        @keyframes drawWave {
+          from { stroke-dashoffset: 2000; }
+          to { stroke-dashoffset: 0; }
         }
       `}</style>
     </>
