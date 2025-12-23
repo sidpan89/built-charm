@@ -57,7 +57,7 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     const yAt = (x: number) => midY + amplitude * Math.sin((2 * Math.PI * x) / period + phase);
 
     const xs = troughXPositions({ firstTroughX: firstDotX, count: menuItems.length, period });
-    const dotGap = 10; // positions dots nicely within the deeper dips
+    const dotGap = 18; // larger gap so dots float well within the dip, not touching the line
 
     const dotPositions = xs.map((x, i) => {
       const yLine = yAt(x);
@@ -171,9 +171,11 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
                     : "bg-charcoal/60 hover:bg-charcoal hover:scale-125"
                 )}
                 style={{
-                  animation: isDrawn ? "rangoliDotFloat 3.1s ease-in-out infinite" : "none",
-                  animationDelay: `${1.8 + index * 0.1}s`,
-                  boxShadow: isActive ? "0 0 8px 2px hsl(var(--charcoal) / 0.35)" : "none",
+                  animation: isDrawn 
+                    ? `rangoliDotBounce 2.4s ease-in-out infinite, rangoliDotPulse 3s ease-in-out infinite` 
+                    : "none",
+                  animationDelay: `${1.8 + index * 0.15}s, ${2 + index * 0.2}s`,
+                  boxShadow: isActive ? "0 0 10px 3px hsl(var(--charcoal) / 0.4)" : "none",
                 }}
                 aria-label={item.label}
               />
@@ -193,17 +195,30 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
 
         {/* Rangoli micro-animations */}
         <style>{`
-          @keyframes rangoliDotFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-2px); }
+          @keyframes rangoliDotBounce {
+            0%, 100% { 
+              transform: translateY(0); 
+            }
+            25% { 
+              transform: translateY(-3px); 
+            }
+            75% { 
+              transform: translateY(2px); 
+            }
+          }
+          @keyframes rangoliDotPulse {
+            0%, 100% { 
+              opacity: 0.7;
+              transform: scale(1);
+            }
+            50% { 
+              opacity: 1;
+              transform: scale(1.15);
+            }
           }
           @keyframes rangoliSparkle {
             0%, 100% { opacity: 0.25; transform: translate(-50%, -50%) scale(1); }
             50% { opacity: 0.55; transform: translate(-50%, -50%) scale(1.35); }
-          }
-          @keyframes rangoliActiveGlow {
-            0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.38); }
-            50% { box-shadow: 0 0 10px 3px hsl(var(--primary) / 0.26); }
           }
           @keyframes rangoliWaveBreath {
             0%, 100% { opacity: 0.48; }
