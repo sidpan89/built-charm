@@ -9,7 +9,7 @@ const WavePath = ({ pathD, isDrawn }: WavePathProps) => {
       <path
         d={pathD}
         fill="none"
-        stroke="hsl(var(--charcoal) / 0.5)"
+        stroke="hsl(0 0% 45%)"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -23,22 +23,16 @@ const WavePath = ({ pathD, isDrawn }: WavePathProps) => {
         .wave-animate {
           stroke-dasharray: 2000;
           animation: 
-            sketchWave 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards,
-            waveBreathe 3.5s ease-in-out 1.3s infinite;
+            drawWave 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards,
+            waveBreathe 4s ease-in-out 1.4s infinite;
         }
-        @keyframes sketchWave {
+        @keyframes drawWave {
           from { stroke-dashoffset: 2000; }
           to { stroke-dashoffset: 0; }
         }
         @keyframes waveBreathe {
-          0%, 100% {
-            opacity: 0.5;
-            stroke-width: 2;
-          }
-          50% {
-            opacity: 0.7;
-            stroke-width: 2.3;
-          }
+          0%, 100% { opacity: 0.55; }
+          50% { opacity: 0.7; }
         }
       `}</style>
     </>
