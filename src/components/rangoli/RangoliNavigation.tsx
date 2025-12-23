@@ -26,10 +26,9 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   );
 
   useEffect(() => {
-    // Animation sequence: fade in → wave draws → dots appear
     const t1 = window.setTimeout(() => setIsVisible(true), 500);
     const t2 = window.setTimeout(() => setWaveDrawn(true), 600);
-    const t3 = window.setTimeout(() => setDotsVisible(true), 1700);
+    const t3 = window.setTimeout(() => setDotsVisible(true), 1600);
     
     return () => {
       window.clearTimeout(t1);
@@ -38,59 +37,59 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     };
   }, []);
 
-  // Canvas
-  const W = 480;
-  const H = 80;
+  // Canvas dimensions
+  const W = 460;
+  const H = 70;
   const numDots = menuItems.length;
 
-  // Wave parameters - dots ONLY in troughs
-  // Each trough = one dot, so wavelength = spacing between dots
-  const wavelength = 70; // Horizontal distance between consecutive troughs
-  const amplitude = 12; // Wave height above/below center
-  const centerY = 32; // Vertical center of the wave (toward top to leave room for dots below)
-  const dotGap = 10; // Vertical gap between trough and dot
+  // Wave geometry - dots ONLY at troughs (valleys)
+  // One wavelength = one full oscillation, but we want dots at EVERY trough
+  // So spacing between dots = wavelength (one complete wave cycle per dot)
+  const dotSpacing = 68;
+  const amplitude = 14;
+  const waveCenter = 28; // Vertical center toward top, leaving room for dots below
+  const gapBelowWave = 8; // Gap between lowest wave point and top of dot
 
   const { pathD, dotPositions } = useMemo(() => {
-    // Calculate layout
-    const totalWidth = (numDots - 1) * wavelength;
+    const totalWidth = (numDots - 1) * dotSpacing;
     const startX = (W - totalWidth) / 2;
 
-    // Phase calculation:
-    // We want troughs (sin = -1) at x = startX, startX + wavelength, startX + 2*wavelength, etc.
-    // sin(θ) = -1 when θ = -π/2 + 2πk
-    // θ = (2π/wavelength) * x + phase
-    // At x = startX: (2π/wavelength) * startX + phase = -π/2
+    // Wavelength = dotSpacing (so each dot aligns with a trough)
+    const wavelength = dotSpacing;
+    
+    // Phase: sin reaches minimum (-1) at θ = -π/2
+    // θ = (2π/λ) * x + φ
+    // At x = startX: (2π/λ) * startX + φ = -π/2
     const phase = -Math.PI / 2 - (2 * Math.PI / wavelength) * startX;
 
-    // Build wave path
-    const step = 2;
+    // Generate smooth sine wave
+    const step = 1.5;
     const points: string[] = [];
     
     for (let x = 0; x <= W; x += step) {
-      // sin wave: when sin = -1, y is at maximum (trough = lowest point visually)
-      // y = centerY - amplitude * sin(θ)
-      // When sin = -1: y = centerY + amplitude (trough, lower on screen)
-      // When sin = +1: y = centerY - amplitude (peak, higher on screen)
       const theta = (2 * Math.PI / wavelength) * x + phase;
-      const y = centerY - amplitude * Math.sin(theta);
-      points.push(x === 0 ? `M ${x} ${y.toFixed(1)}` : `L ${x} ${y.toFixed(1)}`);
+      // y = center - amplitude * sin(θ)
+      // When sin = -1 (trough): y = center + amplitude (lowest point, higher Y)
+      // When sin = +1 (peak): y = center - amplitude (highest point, lower Y)
+      const y = waveCenter - amplitude * Math.sin(theta);
+      points.push(x === 0 ? `M ${x} ${y.toFixed(2)}` : `L ${x} ${y.toFixed(2)}`);
     }
     
     const pathD = points.join(" ");
 
-    // Dot positions - ALL in troughs, BELOW the wave
-    // Trough Y = centerY + amplitude
-    // Dot Y = centerY + amplitude + dotGap
-    const troughY = centerY + amplitude;
-    const dotY = troughY + dotGap;
-    
+    // All dots positioned at troughs (where wave dips lowest)
+    // Trough Y = waveCenter + amplitude
+    // Dot Y = trough + gap
+    const troughY = waveCenter + amplitude;
+    const dotY = troughY + gapBelowWave;
+
     const dotPositions = Array.from({ length: numDots }, (_, i) => ({
-      x: startX + i * wavelength,
+      x: startX + i * dotSpacing,
       y: dotY,
     }));
 
     return { pathD, dotPositions };
-  }, [numDots, wavelength, amplitude, centerY, dotGap, W]);
+  }, [numDots, dotSpacing, amplitude, waveCenter, gapBelowWave, W]);
 
   return (
     <div
