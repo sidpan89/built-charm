@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import heroHouse from "@/assets/hero-house.jpg";
+import studioLogo from "@/assets/studio-logo-red.png";
 
 interface HeroProps {
   onExplore?: () => void;
@@ -266,9 +267,9 @@ const Hero = ({ onExplore }: HeroProps) => {
         />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 lg:px-12 py-32">
-        <div className="max-w-5xl">
+      {/* Content - Centered */}
+      <div className="relative z-10 container mx-auto px-6 lg:px-12 py-32 flex flex-col items-center justify-center text-center">
+        <div className="max-w-3xl flex flex-col items-center">
           {/* Tagline */}
           <div
             className={cn(
@@ -287,8 +288,23 @@ const Hero = ({ onExplore }: HeroProps) => {
             </span>
           </div>
 
-          {/* Main Heading with Letter Animation */}
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-charcoal leading-[0.95] tracking-tight mb-12">
+          {/* Logo Image - Centered above text */}
+          <div
+            className={cn(
+              "mb-8 transition-all duration-1000",
+              isVisible ? "opacity-100 scale-100" : "opacity-0 scale-90"
+            )}
+            style={{ transitionDelay: "500ms" }}
+          >
+            <img
+              src={studioLogo}
+              alt="Studio Prangana Logo"
+              className="w-28 h-28 md:w-36 md:h-36 lg:w-44 lg:h-44 object-contain"
+            />
+          </div>
+
+          {/* Main Heading with Letter Animation - Centered */}
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-charcoal leading-[0.95] tracking-tight mb-8">
             <span className="inline">
               {studioName.split("").map((letter, index) => (
                 <span
@@ -307,21 +323,23 @@ const Hero = ({ onExplore }: HeroProps) => {
                 </span>
               ))}
             </span>
-            <span
-              className={cn(
-                "block mt-4 text-lg md:text-xl lg:text-2xl font-sans font-light text-charcoal/60 leading-relaxed transition-all duration-1000",
-                isVisible ? "opacity-100 translate-y-0 blur-0" : "opacity-0 translate-y-8 blur-sm"
-              )}
-              style={{ transitionDelay: "1500ms" }}
-            >
-              {tagline}
-            </span>
           </h1>
+
+          {/* Tagline below name */}
+          <p
+            className={cn(
+              "text-lg md:text-xl lg:text-2xl font-sans font-light text-charcoal/60 leading-relaxed transition-all duration-1000 max-w-2xl",
+              isVisible ? "opacity-100 translate-y-0 blur-0" : "opacity-0 translate-y-8 blur-sm"
+            )}
+            style={{ transitionDelay: "1500ms" }}
+          >
+            {tagline}
+          </p>
 
           {/* CTA Links */}
           <div
             className={cn(
-              "flex flex-wrap gap-8 md:gap-12 transition-all duration-1000",
+              "mt-12 flex flex-wrap justify-center gap-8 md:gap-12 transition-all duration-1000",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}
             style={{ transitionDelay: "2000ms" }}
