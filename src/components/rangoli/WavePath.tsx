@@ -8,8 +8,8 @@ const WavePath = ({ pathD, isDrawn }: WavePathProps) => {
     <path
       d={pathD}
       fill="none"
-      stroke="#3D3D3D"
-      strokeWidth="1.5"
+      stroke="hsl(var(--muted-foreground))"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       style={{
