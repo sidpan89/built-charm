@@ -12,15 +12,14 @@ interface AccentDotsProps {
 }
 
 const AccentDots = ({ dots, viewBoxWidth, viewBoxHeight, isDrawn }: AccentDotsProps) => {
-  // Calculate center for sequential animation
   const centerX = viewBoxWidth / 2;
 
   return (
     <>
       {dots.map((dot, idx) => {
-        // Delay based on distance from center
+        // Delay based on distance from center - further = later
         const distanceFromCenter = Math.abs(dot.x - centerX) / centerX;
-        const delay = 0.5 + distanceFromCenter * 0.4;
+        const delay = 0.3 + distanceFromCenter * 0.5;
 
         return (
           <div
@@ -31,9 +30,9 @@ const AccentDots = ({ dots, viewBoxWidth, viewBoxHeight, isDrawn }: AccentDotsPr
               top: `${(dot.y / viewBoxHeight) * 100}%`,
               width: `${dot.size}px`,
               height: `${dot.size}px`,
-              transform: "translate(-50%, -50%)",
+              transform: `translate(-50%, -50%) scale(${isDrawn ? 1 : 0})`,
               opacity: isDrawn ? 0.5 : 0,
-              transition: `opacity 400ms ease ${delay}s`,
+              transition: `opacity 400ms ease ${delay}s, transform 400ms ease ${delay}s`,
             }}
           />
         );
