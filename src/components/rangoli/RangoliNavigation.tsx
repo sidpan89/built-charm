@@ -75,17 +75,12 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     }
     const pathD = points.join(" ");
 
-    // Dot placement:
-    // - Even index dots sit INSIDE bottom troughs (float above the trough line)
-    // - Odd index dots sit INSIDE top troughs/peaks (float below the peak line)
+    // Dot placement: all dots on same horizontal line at center Y of wave
+    const dotCenterY = centerY;
+
     const dotPositions = Array.from({ length: numDots }, (_, i) => {
       const x = startX + i * dotSpacing;
-      const isBottomCup = i % 2 === 0;
-      const y = isBottomCup
-        ? troughY - gap - dotRadius // above bottom trough
-        : peakY + gap + dotRadius; // below top peak
-
-      return { x, y };
+      return { x, y: dotCenterY };
     });
 
     return { pathD, dotPositions, troughY, peakY };
@@ -96,8 +91,6 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     <div
       className={cn(
         "fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-50",
-        "bg-cream shadow-subtle rounded-xl",
-        "px-6 py-2.5",
         "transition-all duration-500",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
       )}
