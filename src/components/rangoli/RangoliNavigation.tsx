@@ -42,31 +42,31 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   const H = 70;
   const numDots = menuItems.length;
 
-  // Wave geometry - matches Studio Prangana reference
-  const dotSpacing = 75; // horizontal distance between dots
-  const amplitude = 16; // wave amplitude
+  // Wave geometry - dots inside every trough (consecutive)
+  const dotSpacing = 70; // horizontal distance between dots = one full wavelength
+  const amplitude = 18; // wave amplitude
   const dotRadius = 4;
-  const gap = 6; // gap between wave trough and dot top
+  const gap = 5; // gap between dot bottom and trough line
 
   const { pathD, dotPositions, troughY } = useMemo(() => {
     const totalWidth = (numDots - 1) * dotSpacing;
     const startX = (W - totalWidth) / 2;
+    
+    // Each dot sits in its own trough - wavelength equals dot spacing
+    // This means every trough has a dot (consecutive)
     const wavelength = dotSpacing;
     
     // Wave geometry:
-    // - Peak (top of wave, low Y value) at x = startX + wavelength/2, startX + 3*wavelength/2, etc.
-    // - Trough (bottom of wave, high Y value) at x = startX, startX + wavelength, etc.
-    // 
-    // Using cosine: y = centerY + amplitude * cos(theta)
-    // When theta = 0: cos(0) = 1 → y is at maximum (trough, since Y increases downward)
-    // When theta = π: cos(π) = -1 → y is at minimum (peak)
+    // - Trough (bottom, high Y) at x = startX + n*wavelength where dots are
+    // - Peak (top, low Y) at x = startX + wavelength/2 + n*wavelength (between dots)
     
-    const peakY = 12; // top of wave curve
+    const peakY = 10; // top of wave curve
     const troughY = peakY + 2 * amplitude; // bottom of wave curve
     const centerY = (peakY + troughY) / 2;
     
     const yAt = (x: number) => {
       const theta = (2 * Math.PI * (x - startX)) / wavelength;
+      // cos(0) = 1 → trough at dot positions
       return centerY + amplitude * Math.cos(theta);
     };
 
@@ -78,9 +78,10 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
     }
     const pathD = points.join(" ");
 
-    // Dots positioned below troughs with gap
-    // Dot center Y = troughY + gap + dotRadius
-    const dotCenterY = troughY + gap + dotRadius;
+    // Dots positioned ABOVE the trough line, floating inside the cup
+    // Dot bottom edge should be 'gap' pixels above the trough
+    // Dot center Y = troughY - gap - dotRadius
+    const dotCenterY = troughY - gap - dotRadius;
 
     const dotPositions = Array.from({ length: numDots }, (_, i) => ({
       x: startX + i * wavelength,
