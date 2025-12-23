@@ -43,12 +43,12 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
   const numDots = menuItems.length;
 
   // Wave geometry - dots ONLY at troughs (valleys)
-  // One wavelength = one full oscillation, but we want dots at EVERY trough
-  // So spacing between dots = wavelength (one complete wave cycle per dot)
+  // Spacing between dots equals the wavelength (each dot = one trough)
   const dotSpacing = 68;
   const amplitude = 14;
-  const waveCenter = 28; // Vertical center toward top, leaving room for dots below
-  const gapBelowWave = 8; // Gap between lowest wave point and top of dot
+  const waveCenter = 28; // vertical center (kept high to leave room for dots below)
+  const gapBelowWave = 8; // whitespace between bottom of line and top of dot
+  const dotRadius = 5; // approx radius in px (since the dot is ~10px)
 
   const { pathD, dotPositions } = useMemo(() => {
     const totalWidth = (numDots - 1) * dotSpacing;
@@ -56,40 +56,39 @@ const RangoliNavigation = ({ onNavigate, activeSection }: RangoliNavigationProps
 
     // Wavelength = dotSpacing (so each dot aligns with a trough)
     const wavelength = dotSpacing;
-    
-    // Phase: sin reaches minimum (-1) at θ = -π/2
-    // θ = (2π/λ) * x + φ
-    // At x = startX: (2π/λ) * startX + φ = -π/2
+
+    // Phase: make a trough (sin = -1) land exactly at x = startX
     const phase = -Math.PI / 2 - (2 * Math.PI / wavelength) * startX;
+
+    const yAt = (x: number) => {
+      const theta = (2 * Math.PI / wavelength) * x + phase;
+      return waveCenter - amplitude * Math.sin(theta);
+    };
 
     // Generate smooth sine wave
     const step = 1.5;
     const points: string[] = [];
-    
+
     for (let x = 0; x <= W; x += step) {
-      const theta = (2 * Math.PI / wavelength) * x + phase;
-      // y = center - amplitude * sin(θ)
-      // When sin = -1 (trough): y = center + amplitude (lowest point, higher Y)
-      // When sin = +1 (peak): y = center - amplitude (highest point, lower Y)
-      const y = waveCenter - amplitude * Math.sin(theta);
+      const y = yAt(x);
       points.push(x === 0 ? `M ${x} ${y.toFixed(2)}` : `L ${x} ${y.toFixed(2)}`);
     }
-    
+
     const pathD = points.join(" ");
 
-    // All dots positioned at troughs (where wave dips lowest)
-    // Trough Y = waveCenter + amplitude
-    // Dot Y = trough + gap
-    const troughY = waveCenter + amplitude;
-    const dotY = troughY + gapBelowWave;
-
-    const dotPositions = Array.from({ length: numDots }, (_, i) => ({
-      x: startX + i * dotSpacing,
-      y: dotY,
-    }));
+    // Dot centers: at each trough X, placed BELOW the curve by (gap + radius)
+    // This guarantees the TOP of the dot stays `gapBelowWave` away from the line.
+    const troughXs = Array.from({ length: numDots }, (_, i) => startX + i * wavelength);
+    const dotPositions = troughXs.map((x) => {
+      const yLine = yAt(x); // this is the trough's lowest y for that x
+      return {
+        x,
+        y: yLine + gapBelowWave + dotRadius,
+      };
+    });
 
     return { pathD, dotPositions };
-  }, [numDots, dotSpacing, amplitude, waveCenter, gapBelowWave, W]);
+  }, [numDots, dotSpacing, amplitude, waveCenter, gapBelowWave, dotRadius, W]);
 
   return (
     <div
