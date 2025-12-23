@@ -13,19 +13,18 @@ const WavePath = ({ pathD, isDrawn }: WavePathProps) => {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={isDrawn ? "wave-animate" : "wave-hidden"}
+        className={isDrawn ? "wave-draw" : "wave-initial"}
       />
       <style>{`
-        .wave-hidden {
+        .wave-initial {
           stroke-dasharray: 2000;
           stroke-dashoffset: 2000;
         }
-        .wave-animate {
+        .wave-draw {
           stroke-dasharray: 2000;
-          stroke-dashoffset: 0;
-          animation: sketchLine 1.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+          animation: drawLine 1.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
         }
-        @keyframes sketchLine {
+        @keyframes drawLine {
           from { stroke-dashoffset: 2000; }
           to { stroke-dashoffset: 0; }
         }
